@@ -8,21 +8,21 @@
 
 int main(int argc, char *argv[]) {
     int v[10];
-    char c[10][20];
     int fildes[2];
-    int pid_child1;
-printf("dbg1\n"); fflush(stdout);
+    int scanf_ret;
+
     fildes[0] = atoi(argv[1]);
     fildes[1] = atoi(argv[2]); 
-    pid_child1 = atoi(argv[3]);    
-printf("dbg2\n"); fflush(stdout);
-    printf("PLEASE INSERT 10 NUMBERS"); fflush(stdout); 
-    getchar();
+    printf("PLEASE INSERT 10 NUMBERS");  fflush(stdout); 
     for(int i=0;i<10;i++) 
     {
-        printf("\n   insert the %d-th number --> ",i+1); fflush(stdout);  
-        fgets(c[i],100,stdin);
-        v[i] = atoi(c[i]);
+        printf("\n   insert the %d-th number --> ",i+1);  fflush(stdout);  
+        scanf_ret = scanf("%d", &v[i]);
+        if (scanf_ret < 0)
+        {
+            perror("scanf");
+            return -1;
+        }
         
     }
     printf("\nWELL DONE\nYou have inserted the following numbers:\n\n["); fflush(stdout);
@@ -52,9 +52,7 @@ printf("dbg2\n"); fflush(stdout);
 
     close(fildes[1]);    
     
-    kill(pid_child1, SIGUSR1);
-
     exit(EXIT_SUCCESS);
-    
+
 }    
     

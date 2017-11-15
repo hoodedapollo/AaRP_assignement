@@ -34,12 +34,14 @@ int main (int argc, char *argv[]) {
         execve("from_input", argv, NULL);               //  
         perror("execve");
     }
+    else
+    {
     argv[0] = "output";
     argv[1] = pipe_fd0;
     argv[2] = pipe_fd1;
     argv[3] = NULL;
     execve("output", argv, NULL);
     perror("execve");
-    
+    }
     return 0;
 }     
