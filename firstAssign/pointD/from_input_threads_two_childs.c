@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
         fildes_secondpipe[0] = atoi(argv[3]);
         fildes_secondpipe[1] = atoi(argv[4]); 
 
-        pid_child2 = atoi(argv[5]);
         while(1)
         {
                 while (choice != 'y' &&  choice != 'n')

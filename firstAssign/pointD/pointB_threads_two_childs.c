@@ -57,7 +57,7 @@ int main (int argc, char *argv[]) {
                 argv[2] = firstpipe_fd1;                             // by definition the last member must be NULL 
                 argv[3] = secondpipe_fd0;
                 argv[4] = secondpipe_fd1; 
-                argv[6] = NULL;
+                argv[5] = NULL;
                 execve("from_input_threads_two_childs", argv, NULL);               //  
                 perror("execve");
         }
