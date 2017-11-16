@@ -18,15 +18,14 @@ int main (int argc, char *argv[]) {
 
         signal(SIGUSR1, SIG_IGN); // ignore signals coming from child1
         signal(SIGUSR2,SIG_IGN);
+
         firstpipe_ret = pipe(fildes_firstpipe);  // create the pipe, pass file descriptors to fildes
         err_control(firstpipe_ret,"first pipe",0);  // pipe1 error handling
-
         sprintf(firstpipe_fd0,"%d", fildes_firstpipe[0]);  // convert intger file descriptors of pipe1 to string
         sprintf(firstpipe_fd1,"%d", fildes_firstpipe[1]);                  
 
         secondpipe_ret = pipe(fildes_secondpipe);
         err_control(secondpipe_ret,"second pipe",0);  // pipe2 error handling
-
         sprintf(secondpipe_fd0,"%d", fildes_secondpipe[0]);   // convert intger file descriptors of pipe2 to string  
         sprintf(secondpipe_fd1,"%d", fildes_secondpipe[1]);           
 
@@ -65,12 +64,14 @@ int main (int argc, char *argv[]) {
         {
                 printf("child1 pid --> %d\n", fork_pid_child1); fflush(stdout);  // print child1 pid
                 printf("child2 pid --> %d\n", fork_pid_child2); fflush(stdout);  // print child2 pid
+
                 first_wait_return = wait(NULL);  // wait for a child to terminate
                 err_control(first_wait_return,"first wait",0);  // first wait error handling
                 if (first_wait_return == fork_pid_child2)  // if the first child to terminate is child2
                 {
                         printf(" --> CHILD2 TERMINATED (PID: %d)\n", first_wait_return); fflush(stdout);  //print the pid of the first child to terminate (child2) 
                 }
+
                 second_wait_return = wait(NULL);  // wait for the other child to terminate
                 err_control(second_wait_return,"second wait",0);  // second wait error handling
                 if (second_wait_return == fork_pid_child1) // if the second child to terminate is child1
@@ -82,7 +83,7 @@ int main (int argc, char *argv[]) {
 }
 
 
-int err_control (int func_ret, char perror_msg[], int err_value) {
+int err_control (int func_ret, char perror_msg[], int err_value) {  // error handling function
         if (func_ret < err_value)
         {   
                 perror(perror_msg);
