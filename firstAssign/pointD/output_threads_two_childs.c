@@ -6,20 +6,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-void handler(int signo) {
-        printf("Signal %d recieved. Terminating child2 process", signo);
-        exit(EXIT_SUCCESS);
-}
 
+void handler(int signo) {
+        if (signo == SIGUSR2)   
+        {
+                printf("CHILD2: Signal %d recieved. Terminating child2 process\n", signo);
+                exit(0);
+        }
+}
 
 int main (int argc, char *argv[]) {
         int w[10];      
         int fildes_firstpipe[2];
         int fildes_secondpipe[2];
         ssize_t bytes_read[10];     // array which stores number of bytes read during each reading
-        int total_bytes_read = 0;
-        signal(SIGUSR2,handler);
-
+        int total_bytes_read;
+        signal(SIGUSR1,SIG_IGN);
+        signal(SIGUSR2, handler); 
         fildes_firstpipe[0] = atoi(argv[1]);
         fildes_firstpipe[1] = atoi(argv[2]);
 
@@ -29,6 +32,7 @@ int main (int argc, char *argv[]) {
         close(fildes_firstpipe[1]); 
         while (1)
         {
+                total_bytes_read = 0;
                 size_t w_size = sizeof((w[0]));
                 for (int i = 0; i<10; i++) 
                 {
@@ -41,7 +45,7 @@ int main (int argc, char *argv[]) {
                         }
                         else if (bytes_read[i] < w_size)
                         {
-                                printf("\nPARTIAL READ: bytes read by the i-th read -->  %ld\n",bytes_read[i]); fflush(stdout);
+                                printf("\nCHILD2: PARTIAL READ: bytes read by the i-th read -->  %ld\n",bytes_read[i]); fflush(stdout);
                         }
                 }
 
@@ -49,14 +53,13 @@ int main (int argc, char *argv[]) {
 
                 if (total_bytes_read < 10 * w_size)
                 {
-                        printf("PARTIAL READING\n"); fflush(stdout);
+                        printf("CHILD2: PARTIAL READING\n"); fflush(stdout);
                 }
                 else
-                        printf("READING COMPLETED\n"); fflush(stdout);
+                        printf("CHILD2: READING COMPLETED\n"); fflush(stdout);
 
 
 
-                //        close(fildes_firstpipe[0]);   
 
                 for(int j = 0; j<10; j++) {
                         for(int i=0;i<9;i++) {
@@ -67,17 +70,11 @@ int main (int argc, char *argv[]) {
                                 }
                         }
                 }
-                printf("\nThe ordered vector is\n[");
-
-                for (int i=0;i<10;i++) { 
-                        printf(" %d", w[i]);
-                }
-                printf(" ]\n");
 
                 close(fildes_secondpipe[0]); // before writing close the reading side of the second pipe
 
                 size_t w_totsize = sizeof(w);
-                printf("\nWRITING IN THE PIPE...\n   size of vector v -->  %ld",w_totsize); fflush(stdout);
+                printf("\nCHILD2: WRITING IN THE PIPE...\n   size of vector v -->  %ld",w_totsize); fflush(stdout);
                 ssize_t bytes_written = write(fildes_secondpipe[1], w, w_totsize);
                 if (bytes_written < 0)
                 {
@@ -87,11 +84,12 @@ int main (int argc, char *argv[]) {
                 printf("\n   bytes written -->  %ld\n", bytes_written); fflush(stdout);
                 if (bytes_written == w_totsize)
                 {
-                        printf("WRITING COMPLETED\n"); fflush(stdout);
+                        printf("CHILD2: WRITING COMPLETED\n"); fflush(stdout);
                 }
                 else
-                        printf("WRITING NOT COMPLETED\n"); fflush(stdout);
-
-                //    close(fildes_secondpipe[1]);
+                {
+                        printf("CHILD2: WRITING NOT COMPLETED\n"); fflush(stdout);
+                }
         }
+
 }
