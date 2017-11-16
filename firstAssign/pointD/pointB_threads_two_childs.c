@@ -51,13 +51,14 @@ int main (int argc, char *argv[]) {
                 return -1;
         }
         
-        if (fork_pid_child1 == 0) {                                // child process code
-                argv[0] = "from_input_threads_two_childs";                         // by definition the first element must be the bin namefile
                 argv[1] = firstpipe_fd0;                             // putting the char format file descriptors in the pointer to array of char (char **argv) 
                 argv[2] = firstpipe_fd1;                             // by definition the last member must be NULL 
                 argv[3] = secondpipe_fd0;
                 argv[4] = secondpipe_fd1; 
                 argv[5] = NULL;
+
+        if (fork_pid_child1 == 0) {                                // child process code
+                argv[0] = "from_input_threads_two_childs";                         // by definition the first element must be the bin namefile
                 execve("from_input_threads_two_childs", argv, NULL);               //  
                 perror("execve");
         }
@@ -65,11 +66,6 @@ int main (int argc, char *argv[]) {
         else if (fork_pid_child2 == 0)
         {
                 argv[0] = "output_threads_two_childs";
-                argv[1] = firstpipe_fd0;
-                argv[2] = firstpipe_fd1;
-                argv[3] = secondpipe_fd0;
-                argv[4] = secondpipe_fd1; 
-                argv[5] = NULL;
                 execve("output_threads_two_childs", argv, NULL);
                 perror("execve");
         }
