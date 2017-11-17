@@ -7,13 +7,14 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+
 typedef void (*sighandler_t)(int);
 
 int err_control (int func_ret, char perror_msg[], int err_value);  // error handling function
 
-void signal_err_control(sighandler_t func_ret, char perror_msg[]);
+void signal_err_control(sighandler_t func_ret, char perror_msg[]);  // signal error handling
 
-void log_func(FILE *f);
+void log_func(FILE *f, char msg[]);  // add line to log file
 
 int main (int argc, char *argv[]) {
         int fildes_firstpipe[2], fildes_secondpipe[2];  // file descriptors' arrays    
@@ -29,31 +30,36 @@ int main (int argc, char *argv[]) {
         f = fopen("pointD.log", "w+"); // open log file in append mode, if it does not exist create it        
         if (f == NULL)
         {
-                printf("logging error occured"); fflush(stdout);
+                perror("open log file: "); fflush(stdout);
         }
         
         signal_sigusr1_ret = signal(SIGUSR1, SIG_IGN); // ignore signals coming from child1
-        log_func(f);
+        log_func(f,"FATHER signal SIGUSR1");  // add corresponding line to log file
         signal_err_control(signal_sigusr1_ret,"FATHER: signal SIGUSR1 ");
         signal_sigusr2_ret = signal(SIGUSR2,SIG_IGN);
-        signal_err_control(signal_sigusr2_ret,"FATHER: signal SIGUSR1 ");
+        log_func(f,"FATHER signal SIGUSR2");  // add corresponding line to log file
+        signal_err_control(signal_sigusr2_ret,"FATHER: signal SIGUSR2 ");
 
         firstpipe_ret = pipe(fildes_firstpipe);  // create the pipe, pass file descriptors to fildes
+        log_func(f,"FATHER first pipe open");
         err_control(firstpipe_ret,"first pipe",0);  // pipe1 error handling
         sprintf(firstpipe_fd0,"%d", fildes_firstpipe[0]);  // convert intger file descriptors of pipe1 to string
         sprintf(firstpipe_fd1,"%d", fildes_firstpipe[1]);                  
 
         secondpipe_ret = pipe(fildes_secondpipe);
+        log_func(f,"FATHER second pipe open");
         err_control(secondpipe_ret,"second pipe",0);  // pipe2 error handling
         sprintf(secondpipe_fd0,"%d", fildes_secondpipe[0]);   // convert intger file descriptors of pipe2 to string  
         sprintf(secondpipe_fd1,"%d", fildes_secondpipe[1]);           
 
         fork_pid_child1 = fork();  // create first child process (child1) through forking
+        log_func(f,"FATHER first fork");
         err_control(fork_pid_child1, "fork child 1",0);  // first fork error handling 
 
         if (fork_pid_child1 > 0)  // in the father procces
         {
                 fork_pid_child2 = fork();  // create second child process (child2) through forking
+                log_func(f,"FATHER second fork");
         }
 
         err_control(fork_pid_child2,"fork child2", 0);  // second fork error handling
@@ -69,6 +75,7 @@ int main (int argc, char *argv[]) {
         {
                 argv[0] = "from_input_threads_two_childs"; // by definition the first element must be the bin path
                 exec_child1_ret = execve("from_input_threads_two_childs", argv, NULL);  // execute the bin file and superimpose its process to the child1 process                  
+                log_func(f,"FATHER: execve child1");
                 err_control(exec_child1_ret,"execve child1",0);  // child1 execve error handling
         }
 
@@ -76,6 +83,7 @@ int main (int argc, char *argv[]) {
         {
                 argv[0] = "output_threads_two_childs";  // by definition the first element must be the bin path 
                 exec_child2_ret = execve("output_threads_two_childs", argv, NULL);  // execute the bin file and superimpose its process to the child2 process                  ;
+                log_func(f,"FATHER: execve child2");
                 err_control(exec_child2_ret,"execve child2",0);  // child2 error handling
         }
 
@@ -85,6 +93,7 @@ int main (int argc, char *argv[]) {
                 printf("child2 pid --> %d\n", fork_pid_child2); fflush(stdout);  // print child2 pid
 
                 first_wait_return = wait(NULL);  // wait for a child to terminate
+                log_func(f,"FATHER first wait");
                 err_control(first_wait_return,"first wait",0);  // first wait error handling
                 if (first_wait_return == fork_pid_child2)  // if the first child to terminate is child2
                 {
@@ -92,6 +101,7 @@ int main (int argc, char *argv[]) {
                 }
 
                 second_wait_return = wait(NULL);     // wait for the other child to terminate
+                log_func(f,"FATHER second wait");
                 err_control(second_wait_return,"second wait",0);  // second wait error handling
                 if (second_wait_return == fork_pid_child1) // if the second child to terminate is child1
                 {
@@ -118,11 +128,11 @@ void signal_err_control(sighandler_t func_ret, char perror_msg[]) {
         }
 }
 
-void log_func(FILE *f) {
-    char string_pid[10];
+void log_func(FILE *f, char msg[]) {
+    char string_pid[5];
     sprintf(string_pid, "%d", getpid());
     time_t log_time = time(NULL);
     char *string_time = asctime(localtime(&log_time));
     strtok(string_time, "\n");
-    fprintf(f,"%s | PROCESS PID: %s -->  %s", string_time, string_pid,strerror(errno));
+    fprintf(f,"%s | PROCESS PID: %s --> %s:  %s\n", string_time, string_pid, msg, strerror(errno));
 }

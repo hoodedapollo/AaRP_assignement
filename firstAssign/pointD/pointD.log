@@ -1,1 +1,8 @@
-Fri Nov 17 14:47:56 2017 | PROCESS PID: 12439 -->  Success
+Fri Nov 17 16:28:04 2017 | PROCESS PID: 15620 --> FATHER signal SIGUSR1:  Success
+Fri Nov 17 16:28:04 2017 | PROCESS PID: 15620 --> FATHER signal SIGUSR2:  Success
+Fri Nov 17 16:28:04 2017 | PROCESS PID: 15620 --> FATHER first pipe open:  Success
+Fri Nov 17 16:28:04 2017 | PROCESS PID: 15620 --> FATHER second pipe open:  Success
+Fri Nov 17 16:28:04 2017 | PROCESS PID: 15620 --> FATHER first fork:  Success
+Fri Nov 17 16:28:04 2017 | PROCESS PID: 15620 --> FATHER second fork:  Success
+Fri Nov 17 16:28:07 2017 | PROCESS PID: 15620 --> FATHER first wait:  Success
+Fri Nov 17 16:28:09 2017 | PROCESS PID: 15620 --> FATHER second wait:  Success
