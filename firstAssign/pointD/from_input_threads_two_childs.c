@@ -29,17 +29,18 @@ int main(int argc, char *argv[]) {
         char choice;
 
         signal_sigusr1_ret = signal(SIGUSR1,handler);
-        signal_err_control(signal_sigusr1_ret,"CHILD1 signal SIGUSR1");
+        signal_err_control(signal_sigusr1_ret,"CHILD1: signal SIGUSR1");
         signal_sigusr2_ret = signal(SIGUSR2,SIG_IGN);
-        signal_err_control(signal_sigusr2_ret,"CHILD1 signal SIGUSR2");
+        signal_err_control(signal_sigusr2_ret,"CHILD1: signal SIGUSR2");
 
         fildes_firstpipe[0] = atoi(argv[1]); // convert string pipes file descriptors pointed by argv into integers
         fildes_firstpipe[1] = atoi(argv[2]); 
         fildes_secondpipe[0] = atoi(argv[3]);
         fildes_secondpipe[1] = atoi(argv[4]); 
 
-                        close(fildes_firstpipe[0]);  // close reading side of the first pipe befor entering the loop
-                        close(fildes_secondpipe[1]);  // close writing side of the second pipe before entering the loop
+        close(fildes_firstpipe[0]);  // close reading side of the first pipe befor entering the loop
+        close(fildes_secondpipe[1]);  // close writing side of the second pipe before entering the loop
+
         while(1)
         {
                 while (choice != 'y' &&  choice != 'n')  // keep looping until y or n are inserted from keyboard
@@ -77,7 +78,7 @@ int main(int argc, char *argv[]) {
                         size_t v_size = 10 * sizeof(v[0]);
                         printf("\nCHILD1: WRITING IN THE PIPE...\n   size of vector v -->  %ld",v_size); fflush(stdout);
                         ssize_t bytes_written = write(fildes_firstpipe[1], v, v_size);
-                        err_control(bytes_written,"first pipe write",0);
+                        err_control(bytes_written,"CHILD1: first pipe write",0);
 
                         printf("\n   bytes written -->  %ld\n", bytes_written); fflush(stdout);
                         if (bytes_written == v_size)  // all the data has been written
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
                         for (int i = 0; i<10; i++)
                         {
                                 bytes_read[i] = read(fildes_secondpipe[0], &w[i], w_size);
-                                err_control(bytes_read[i],"second pipe read",0);
+                                err_control(bytes_read[i],"CHILD1: second pipe read",0);
                                 total_bytes_read = total_bytes_read + bytes_read[i];
                                 if (bytes_read[i] < w_size)
                                 {
@@ -127,7 +128,7 @@ int main(int argc, char *argv[]) {
 void handler(int signo) {  // signal handling function
         if (signo == SIGUSR1)
         {
-        printf("CHILD1: Signal %d recieved. Terminating child1 process\n", signo); fflush(stdout);
+        printf("CHILD1: Signal %d recieved. Terminating child1 process", signo); fflush(stdout);
         exit(EXIT_SUCCESS);
         }
 }
