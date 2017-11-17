@@ -6,12 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
+#include <time.h>
 typedef void (*sighandler_t)(int);
 
 int err_control (int func_ret, char perror_msg[], int err_value);  // error handling function
 
 void signal_err_control(sighandler_t func_ret, char perror_msg[]);
+
+void log_func(FILE *f);
 
 int main (int argc, char *argv[]) {
         int fildes_firstpipe[2], fildes_secondpipe[2];  // file descriptors' arrays    
@@ -24,14 +26,14 @@ int main (int argc, char *argv[]) {
         int first_wait_return, second_wait_return;
         FILE *f;  // declaring log file pointer
         
-        f = fopen("pointD.log", "a+"); // open log file in append mode, if it does not exist create it        
+        f = fopen("pointD.log", "w+"); // open log file in append mode, if it does not exist create it        
         if (f == NULL)
         {
                 printf("logging error occured"); fflush(stdout);
         }
         
         signal_sigusr1_ret = signal(SIGUSR1, SIG_IGN); // ignore signals coming from child1
-        fprintf(f, "FATHER: signal SIGUSR1 --> %s\n", strerror(errno)); 
+        log_func(f);
         signal_err_control(signal_sigusr1_ret,"FATHER: signal SIGUSR1 ");
         signal_sigusr2_ret = signal(SIGUSR2,SIG_IGN);
         signal_err_control(signal_sigusr2_ret,"FATHER: signal SIGUSR1 ");
@@ -89,7 +91,7 @@ int main (int argc, char *argv[]) {
                         printf(" --> CHILD2 TERMINATED (PID: %d)\n", first_wait_return); fflush(stdout);  //print the pid of the first child to terminate (child2) 
                 }
 
-                second_wait_return = wait(NULL);  // wait for the other child to terminate
+                second_wait_return = wait(NULL);     // wait for the other child to terminate
                 err_control(second_wait_return,"second wait",0);  // second wait error handling
                 if (second_wait_return == fork_pid_child1) // if the second child to terminate is child1
                 {
@@ -100,7 +102,7 @@ int main (int argc, char *argv[]) {
 }
 
 
-int err_control (int func_ret, char perror_msg[], int err_value) {  // error handling function
+int err_control (int func_ret, char perror_msg[], int err_value) {      // error handling function
         if (func_ret < err_value)
         {   
                 perror(perror_msg);
@@ -116,3 +118,11 @@ void signal_err_control(sighandler_t func_ret, char perror_msg[]) {
         }
 }
 
+void log_func(FILE *f) {
+    char string_pid[10];
+    sprintf(string_pid, "%d", getpid());
+    time_t log_time = time(NULL);
+    char *string_time = asctime(localtime(&log_time));
+    strtok(string_time, "\n");
+    fprintf(f,"%s | PROCESS PID: %s -->  %s", string_time, string_pid,strerror(errno));
+}
