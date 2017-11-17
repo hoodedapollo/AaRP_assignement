@@ -5,7 +5,13 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+
+typedef void (*sighandler_t)(int);
+
 int err_control (int func_ret, char perror_msg[], int err_value);  // error handling function
+
+void signal_err_control(sighandler_t func_ret, char perror_msg[]);
 
 int main (int argc, char *argv[]) {
         int fildes_firstpipe[2], fildes_secondpipe[2];  // file descriptors' arrays    
@@ -14,10 +20,21 @@ int main (int argc, char *argv[]) {
         pid_t fork_pid_child1, fork_pid_child2;
         int firstpipe_ret, secondpipe_ret;  // return values
         int exec_child1_ret, exec_child2_ret;
+        sighandler_t signal_sigusr1_ret, signal_sigusr2_ret;
         int first_wait_return, second_wait_return;
-
-        signal(SIGUSR1, SIG_IGN); // ignore signals coming from child1
-        signal(SIGUSR2,SIG_IGN);
+        FILE *f;  // declaring log file pointer
+        
+        f = fopen("pointD.log", "a+"); // open log file in append mode, if it does not exist create it        
+        if (f == NULL)
+        {
+                printf("logging error occured"); fflush(stdout);
+        }
+        
+        signal_sigusr1_ret = signal(SIGUSR1, SIG_IGN); // ignore signals coming from child1
+        fprintf(f, "FATHER: signal SIGUSR1 --> %s\n", strerror(errno)); 
+        signal_err_control(signal_sigusr1_ret,"FATHER: signal SIGUSR1 ");
+        signal_sigusr2_ret = signal(SIGUSR2,SIG_IGN);
+        signal_err_control(signal_sigusr2_ret,"FATHER: signal SIGUSR1 ");
 
         firstpipe_ret = pipe(fildes_firstpipe);  // create the pipe, pass file descriptors to fildes
         err_control(firstpipe_ret,"first pipe",0);  // pipe1 error handling
@@ -90,3 +107,12 @@ int err_control (int func_ret, char perror_msg[], int err_value) {  // error han
                 return -1;
         }
 }
+
+void signal_err_control(sighandler_t func_ret, char perror_msg[]) {
+        if (func_ret == SIG_ERR)
+        {
+                perror(perror_msg);
+                exit(EXIT_FAILURE);
+        }
+}
+
