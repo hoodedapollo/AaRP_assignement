@@ -5,16 +5,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef void (*sighandler_t)(int);
-
-void handler(int signo);   // signal handling function
-
-void err_control(int func_ret, char perror_msg[], int err_value);  // error handling function
-
-void signal_err_control(sighandler_t func_ret, char perror_msg[]);
-
-void vector_print(int a[]); // print vector a[] to standard output
+#include "pointD_lib.h"
 
 int main(int argc, char *argv[]) {
         int v[10],w[10];
@@ -29,8 +20,10 @@ int main(int argc, char *argv[]) {
         char choice;
 
         signal_sigusr1_ret = signal(SIGUSR1,handler);
+        log_func("CHILD1 signal SIGUSR1 recieved");
         signal_err_control(signal_sigusr1_ret,"CHILD1: signal SIGUSR1");
         signal_sigusr2_ret = signal(SIGUSR2,SIG_IGN);
+        log_func("CHILD1 signal SIGUSR2 recieved");
         signal_err_control(signal_sigusr2_ret,"CHILD1: signal SIGUSR2");
 
         fildes_firstpipe[0] = atoi(argv[1]); // convert string pipes file descriptors pointed by argv into integers
@@ -39,7 +32,9 @@ int main(int argc, char *argv[]) {
         fildes_secondpipe[1] = atoi(argv[4]); 
 
         close(fildes_firstpipe[0]);  // close reading side of the first pipe befor entering the loop
+        log_func("CHILD1 close first pipe reading side");
         close(fildes_secondpipe[1]);  // close writing side of the second pipe before entering the loop
+        log_func("CHILD1 close second pipe writing  side");
 
         while(1)
         {
@@ -47,6 +42,7 @@ int main(int argc, char *argv[]) {
                 {
                         printf("Do you want to enter a new vector to be sorted?(y/n)\n"); fflush(stdout);
                         choice_scanf_ret = scanf(" %c", &choice);
+                        log_func("CHILD1 choice scanf");
                         err_control(choice_scanf_ret,"choice scanf",0);
                 }
                 if (choice == 'n')  // terminates child2 process and than the current process
@@ -54,9 +50,11 @@ int main(int argc, char *argv[]) {
                         printf("All the process are going to be terminated\n"); fflush(stdout);
                         sleep(2);  // it makes the output easier to read
                         kill_ret = kill(0,SIGUSR2);  // send SIGUSR2 signal to all the processes within child1 process group
+                        log_func("CHILD1 kill SIGUSR2");
                         err_control(kill_ret,"kill SIGUSR2",0);
                         sleep(2);  // it makes the output easier to read
                         raise_ret = raise(SIGUSR1);  // send SIGUSER1 to the process itslef
+                        log_func("CHILD1 raise SIGUSR1");
                         err_control(raise_ret,"raise",0);
                 }
                 else  // run the client
@@ -67,6 +65,7 @@ int main(int argc, char *argv[]) {
                         {
                                 printf("\n   insert the %d-th number --> ",i+1);  fflush(stdout);  
                                 num_scanf_ret = scanf("%d", &v[i]);
+                                log_func("CHILD1 num i-th scanf");
                                 err_control(num_scanf_ret,"number scanf",0);
                         }
                         printf("\nWELL DONE\nYou have inserted the following numbers:\n\n"); fflush(stdout);
@@ -78,6 +77,7 @@ int main(int argc, char *argv[]) {
                         size_t v_size = 10 * sizeof(v[0]);
                         printf("\nCHILD1: WRITING IN THE PIPE...\n   size of vector v -->  %ld",v_size); fflush(stdout);
                         ssize_t bytes_written = write(fildes_firstpipe[1], v, v_size);
+                        log_func("CHILD1 pipe1 write");
                         err_control(bytes_written,"CHILD1: first pipe write",0);
 
                         printf("\n   bytes written -->  %ld\n", bytes_written); fflush(stdout);
@@ -97,6 +97,7 @@ int main(int argc, char *argv[]) {
                         for (int i = 0; i<10; i++)
                         {
                                 bytes_read[i] = read(fildes_secondpipe[0], &w[i], w_size);
+                                log_func("CHILD1 pipe1 i-th read");
                                 err_control(bytes_read[i],"CHILD1: second pipe read",0);
                                 total_bytes_read = total_bytes_read + bytes_read[i];
                                 if (bytes_read[i] < w_size)
@@ -125,37 +126,3 @@ int main(int argc, char *argv[]) {
         }
 }    
 
-void handler(int signo) {  // signal handling function
-        if (signo == SIGUSR1)
-        {
-        printf("CHILD1: Signal %d recieved. Terminating child1 process", signo); fflush(stdout);
-        exit(EXIT_SUCCESS);
-        }
-}
-
-
-void err_control(int func_ret, char perror_msg[], int err_value) {  // error handling function
-        if (func_ret < err_value)
-        {
-                perror(perror_msg);
-                exit(EXIT_FAILURE);
-        }
-}
-
-void signal_err_control(sighandler_t func_ret, char perror_msg[]) {
-        if (func_ret == SIG_ERR)
-        {
-                perror(perror_msg);
-                exit(EXIT_FAILURE);
-        }
-}
-
-void vector_print(int a[]) {  // printing vector function
-        printf("\nThe ordered vector is\n[");
-
-        for (int i=0;i<10;i++) 
-        {
-                printf(" %d", a[i]);
-        }
-        printf(" ]\n\n");
-}
