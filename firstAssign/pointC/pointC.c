@@ -48,8 +48,8 @@ int main (int argc, char *argv[]) {
     
     if (fork_pid_child1 == 0)  // child1 process code
     {                               
-        argv[0] = "from_input_threads_two_childs";                         // by definition the first element must be the bin namefile
-        int exec_child1_ret = execve("from_input_threads_two_childs", argv, NULL);               //  
+        argv[0] = "child1";                         // by definition the first element must be the bin namefile
+        int exec_child1_ret = execve("child1", argv, NULL);               //  
         err_control(exec_child1_ret,"FATHER child1 exec: ",0);
     }
     else if (fork_pid_child2 != 0) // father process
@@ -60,8 +60,8 @@ int main (int argc, char *argv[]) {
 
     else if (fork_pid_child2 == 0)  // child2 process
     {
-            argv[0] = "output_threads_two_childs";
-            int exec_child2_ret = execve("output_threads_two_childs", argv, NULL);
+            argv[0] = "child2";
+            int exec_child2_ret = execve("child2", argv, NULL);
             err_control(exec_child2_ret,"FATHER child2 exec: ",0);
     }
     
