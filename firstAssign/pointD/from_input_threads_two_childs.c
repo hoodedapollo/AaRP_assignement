@@ -54,7 +54,6 @@ int main(int argc, char *argv[]) {
                         err_control(kill_ret,"kill SIGUSR2",0);
                         sleep(2);  // it makes the output easier to read
                         raise_ret = raise(SIGUSR1);  // send SIGUSER1 to the process itslef
-                        log_func("CHILD1 raise SIGUSR1");
                         err_control(raise_ret,"raise",0);
                 }
                 else  // run the client
