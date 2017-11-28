@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include "pointC_lib.h"
 
 int main (int argc, char *argv[]) {
         int w[10];      
@@ -12,26 +13,26 @@ int main (int argc, char *argv[]) {
         int fildes_secondpipe[2];
         ssize_t bytes_read[10];     // array which stores number of bytes read during each reading
         int total_bytes_read = 0;
-        
+
         fildes_firstpipe[0] = atoi(argv[1]);
         fildes_firstpipe[1] = atoi(argv[2]);
 
         fildes_secondpipe[0] = atoi(argv[3]);
         fildes_secondpipe[1] = atoi(argv[4]);
 
-        close(fildes_firstpipe[1]); 
+        int close_p1write_ret = close(fildes_firstpipe[1]); 
+        log_func("CHILD2 close first pipe write-side");
+        err_control(close_p1write_ret,"CHILD2 close first pipe write-side: ",0);
 
-        size_t w_size = sizeof((w[0]));
+        size_t w_size = sizeof(w[0]);
         for (int i = 0; i<10; i++) 
         {
                 bytes_read[i] = read(fildes_firstpipe[0], &w[i], w_size);
+                log_func("CHILD2 i-th read");
+                err_control(bytes_read[i],"CHILD2 i-th read: ",0);
+
                 total_bytes_read = total_bytes_read + bytes_read[i];
-                if (bytes_read[i] < 0)
-                {
-                        perror("read");
-                        return -1;
-                }
-                else if (bytes_read[i] < w_size)
+                if (bytes_read[i] < w_size)
                 {
                         printf("\nPARTIAL READ: bytes read by the i-th read -->  %ld\n",bytes_read[i]); fflush(stdout);
                 }
@@ -48,43 +49,33 @@ int main (int argc, char *argv[]) {
 
 
 
-        close(fildes_firstpipe[0]);   
+        int close_p1read_ret = close(fildes_firstpipe[0]);   
+        log_func("CHILD2 close first pipe read-side");
+        err_control(close_p1read_ret,"CHILD2 close first pipe read-side: ",0);
 
-        for(int j = 0; j<10; j++) {
-                for(int i=0;i<9;i++) {
-                        if (w[i] > w[i+1]) {
-                                int temp = w[i];
-                                w[i] = w[i+1];
-                                w[i+1] = temp;
-                        }
-                }
+        bubble_sort(w);
+
+        int close_p2read_ret = close(fildes_secondpipe[0]); // before writing close the reading side of the second pipe
+        log_func("CHILD2 close second pipe read-side");
+        err_control(close_p2read_ret,"CHILD2 close second pipe read-side: ",0);
+
+        size_t w_totsize = sizeof(w);
+        printf("\nWRITING IN THE PIPE...\n   size of vector v -->  %ld",w_totsize); fflush(stdout);
+        ssize_t bytes_written = write(fildes_secondpipe[1], w, w_totsize);
+        log_func("CHILD2 write into second pipe");
+        err_control(bytes_written,"CHILD2 write into second pipe: ",0);
+
+        printf("\n   bytes written -->  %ld\n", bytes_written); fflush(stdout);
+        if (bytes_written == w_totsize)
+        {
+                printf("WRITING COMPLETED\n"); fflush(stdout);
         }
-        printf("\nThe ordered vector is\n[");
+        else
+                printf("WRITING NOT COMPLETED\n"); fflush(stdout);
 
-        for (int i=0;i<10;i++) { 
-                printf(" %d", w[i]);
-        }
-        printf(" ]\n");
-        
-        close(fildes_secondpipe[0]); // before writing close the reading side of the second pipe
-        
-    size_t w_totsize = sizeof(w);
-    printf("\nWRITING IN THE PIPE...\n   size of vector v -->  %ld",w_totsize); fflush(stdout);
-    ssize_t bytes_written = write(fildes_secondpipe[1], w, w_totsize);
-    if (bytes_written < 0)
-    {
-        perror("write");
-        return -1;
-    }
-    printf("\n   bytes written -->  %ld\n", bytes_written); fflush(stdout);
-    if (bytes_written == w_totsize)
-    {
-        printf("WRITING COMPLETED\n"); fflush(stdout);
-    }
-    else
-        printf("WRITING NOT COMPLETED\n"); fflush(stdout);
-
-    close(fildes_secondpipe[1]);
+        int close_p2write_ret = close(fildes_secondpipe[1]);
+        log_func("CHILD2 close second pipe write-side");
+        err_control(close_p2write_ret,"CHILD2 after writing close second pipe write-side: ",0);
 
         exit(EXIT_SUCCESS);
 }
