@@ -1,20 +1,53 @@
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13057 --> FATHER signal SIGUSR1 recieved:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13057 --> FATHER signal SIGUSR2 recieved:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13057 --> FATHER first pipe open:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13057 --> FATHER second pipe open:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13057 --> FATHER first fork:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13057 --> FATHER second fork:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13058 --> FATHER first fork:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13059 --> FATHER second fork:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13058 --> CHILD1 signal SIGUSR1 recieved:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13058 --> CHILD1 signal SIGUSR2 recieved:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13058 --> CHILD1 close first pipe reading side:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13058 --> CHILD1 close second pipe writing  side:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13059 --> CHILD2 signal SIGUSER1 recieved:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13059 --> CHILD2 signal SIGUSER2 recieved:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13059 --> CHILD2 close first pipe writing side:  Success
-Thu Nov 30 01:43:46 2017 | PROCESS PID: 13059 --> CHILD2 close second pipe reading side:  Success
-Thu Nov 30 01:43:47 2017 | PROCESS PID: 13058 --> CHILD1 choice scanf:  Success
-Thu Nov 30 01:43:49 2017 | PROCESS PID: 13058 --> CHILD1 kill SIGUSR2:  Success
-Thu Nov 30 01:43:49 2017 | PROCESS PID: 13057 --> FATHER first wait:  Success
-Thu Nov 30 01:43:51 2017 | PROCESS PID: 13057 --> FATHER second wait:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3561 --> FATHER signal SIGUSR1 recieved:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3561 --> FATHER signal SIGUSR2 recieved:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3561 --> FATHER first pipe open:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3561 --> FATHER second pipe open:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3561 --> FATHER first fork:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3561 --> FATHER second fork:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3562 --> FATHER first fork:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3563 --> FATHER second fork:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3563 --> CHILD2 signal SIGUSER1 recieved:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3563 --> CHILD2 signal SIGUSER2 recieved:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3563 --> CHILD2 close first pipe writing side:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3563 --> CHILD2 close second pipe reading side:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3562 --> CHILD1 signal SIGUSR1 recieved:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3562 --> CHILD1 signal SIGUSR2 recieved:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3562 --> CHILD1 close first pipe reading side:  Success
+Thu Nov 30 18:23:38 2017 | PROCESS PID: 3562 --> CHILD1 close second pipe writing  side:  Success
+Thu Nov 30 18:23:41 2017 | PROCESS PID: 3562 --> CHILD1 choice scanf:  Success
+Thu Nov 30 18:23:41 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:42 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:42 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:42 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:43 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:43 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:43 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:44 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:44 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 num i-th scanf:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 write:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 first pipe i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3563 --> CHILD2 second pipe write:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:45 2017 | PROCESS PID: 3562 --> CHILD1 pipe1 i-th read:  Success
+Thu Nov 30 18:23:47 2017 | PROCESS PID: 3562 --> CHILD1 choice scanf:  Success
+Thu Nov 30 18:23:49 2017 | PROCESS PID: 3562 --> CHILD1 kill SIGUSR2:  Success
+Thu Nov 30 18:23:49 2017 | PROCESS PID: 3561 --> FATHER first wait:  Success
+Thu Nov 30 18:23:51 2017 | PROCESS PID: 3561 --> FATHER second wait:  Success

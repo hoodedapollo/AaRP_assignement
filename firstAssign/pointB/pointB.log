@@ -1,30 +1,30 @@
-Thu Nov 30 16:25:50 2017 | PROCESS PID: 28473 --> FATHER pipe:  Success
-Thu Nov 30 16:25:50 2017 | PROCESS PID: 28473 --> FATHER first fork:  Success
-Thu Nov 30 16:25:50 2017 | PROCESS PID: 28473 --> FATHER second fork:  Success
-Thu Nov 30 16:25:50 2017 | PROCESS PID: 28475 --> CHILD2 close pipe write-side:  Success
-Thu Nov 30 16:25:51 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:52 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:52 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:53 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:53 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:53 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:54 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:54 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:54 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28474 --> CHILD1 i-th scanf:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28474 --> CHILD1 close pipe read-side:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28474 --> CHILD1 write into pipe:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28474 --> CHILD1 close pipe write-side:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 i-th read:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28475 --> CHILD2 close pipe read-side:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28473 --> FATHER first wait:  Success
-Thu Nov 30 16:25:55 2017 | PROCESS PID: 28473 --> FATHER second wait:  Success
+Thu Nov 30 18:22:13 2017 | PROCESS PID: 3075 --> FATHER pipe:  Success
+Thu Nov 30 18:22:13 2017 | PROCESS PID: 3075 --> FATHER first fork:  Success
+Thu Nov 30 18:22:13 2017 | PROCESS PID: 3075 --> FATHER second fork:  Success
+Thu Nov 30 18:22:13 2017 | PROCESS PID: 3077 --> CHILD2 close pipe write-side:  Success
+Thu Nov 30 18:22:14 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:15 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:15 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:15 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:16 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:16 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:16 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3076 --> CHILD1 i-th scanf:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3076 --> CHILD1 close pipe read-side:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3076 --> CHILD1 write into pipe:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3076 --> CHILD1 close pipe write-side:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3075 --> FATHER first wait:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 i-th read:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3077 --> CHILD2 close pipe read-side:  Success
+Thu Nov 30 18:22:17 2017 | PROCESS PID: 3075 --> FATHER second wait:  Success
