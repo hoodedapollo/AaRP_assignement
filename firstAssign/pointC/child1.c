@@ -50,12 +50,13 @@ int main(int argc, char *argv[]) {
                 printf("WRITING NOT COMPLETED\n"); fflush(stdout);
 
         int close_p1write_ret = close(fildes_firstpipe[1]); // after writing close the writing side of the first pipe   
-
         log_func("CHILD1 close first pipe write-side");
         err_control(close_p1write_ret,"CHILD1 after writing close first pipe write-side: ",0);
+
         int close_p2write_ret = close(fildes_secondpipe[1]); // before reading close writing side of the second pipe
         log_func("CHILD1 close second pipe write-side");
         err_control(close_p2write_ret,"CHILD2 close second pipe write-side: ",0);
+
         size_t w_size = sizeof((w[0]));
         for (int i = 0; i<10; i++)
         {

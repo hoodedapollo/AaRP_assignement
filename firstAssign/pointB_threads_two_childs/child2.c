@@ -5,31 +5,31 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include "pointB_lib.h"
 
 int main (int argc, char *argv[]) {
         int w[10];      
         int fildes[2];      // file descriptors     
         ssize_t bytes_read[10];     // array which stores number of bytes read during each reading
         int total_bytes_read = 0;
-        pid_t wait_ret;
-        int pid_child1;
-        
+
         fildes[0] = atoi(argv[1]);
         fildes[1] = atoi(argv[2]);
 
-        close(fildes[1]); 
+        int close_write_ret = close(fildes[1]);
+        log_func("CHILD2 close pipe write-side");
+        err_control(close_write_ret,"CHILD2 close pipe write-side: ",0);
+
 
         size_t w_size = sizeof((w[0]));
         for (int i = 0; i<10; i++) 
         {
                 bytes_read[i] = read(fildes[0], &w[i], w_size);
+                log_func("CHILD2 i-th read");
+                err_control(bytes_read[i],"CHILD2 i-th read: ",0);
+
                 total_bytes_read = total_bytes_read + bytes_read[i];
-                if (bytes_read[i] < 0)
-                {
-                        perror("read");
-                        return -1;
-                }
-                else if (bytes_read[i] < w_size)
+                if (bytes_read[i] < w_size)
                 {
                         printf("\nPARTIAL READ: bytes read by the i-th read -->  %ld\n",bytes_read[i]); fflush(stdout);
                 }
@@ -44,25 +44,13 @@ int main (int argc, char *argv[]) {
         else
                 printf("READING COMPLETED\n"); fflush(stdout);
 
+        int close_read_ret = close(fildes[0]);
+        log_func("CHILD2 close pipe read-side");
+        err_control(close_read_ret,"CHILD2 close pipe read-side: ",0);
 
+        bubble_sort(w);
 
-        close(fildes[0]);   
-
-        for(int j = 0; j<10; j++) {
-                for(int i=0;i<9;i++) {
-                        if (w[i] > w[i+1]) {
-                                int temp = w[i];
-                                w[i] = w[i+1];
-                                w[i+1] = temp;
-                        }
-                }
-        }
-        printf("\nThe ordered vector is\n[");
-
-        for (int i=0;i<10;i++) { 
-                printf(" %d", w[i]);
-        }
-        printf(" ]\n");
+        vector_print(w,"The ordered vector is");
 
         exit(EXIT_SUCCESS);
 }
