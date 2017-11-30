@@ -19,10 +19,18 @@ extern int err_control(int func_ret, char perror_msg[], int err_value)       // 
         }
 }
 
+extern void signal_err_control(sighandler_t func_ret, char perror_msg[])
+{
+        if (func_ret == SIG_ERR)
+        {
+                perror(perror_msg);
+                exit(EXIT_FAILURE);
+        }
+}
 
 extern void log_func(char msg[])
 {
-    FILE *f = fopen("pointA.log","a+");
+    FILE *f = fopen("pointA_enanched.log","a+");
     char string_pid[5];
     sprintf(string_pid, "%d", getpid());
     time_t log_time = time(NULL);
