@@ -1,8 +1,7 @@
-Thu Nov 30 16:18:09 2017 | PROCESS PID: 27437 --> FATHER SIGUSR1 recieved:  Success
-Thu Nov 30 16:18:09 2017 | PROCESS PID: 27437 --> FATHER SIGUSR2 recieved:  Success
-Thu Nov 30 16:18:09 2017 | PROCESS PID: 27438 --> CHILD SIGUSR1 recieved:  Success
-Thu Nov 30 16:18:09 2017 | PROCESS PID: 27438 --> CHILD SIGUSR2 recieved:  Success
-Thu Nov 30 16:18:10 2017 | PROCESS PID: 27437 --> FATHER first fork:  Success
-Thu Nov 30 16:18:10 2017 | PROCESS PID: 27438 --> CHILD SIGUSR1 sent:  Success
-Thu Nov 30 16:18:10 2017 | PROCESS PID: 27437 --> FATHER SIGUSR2 sent:  Success
-Thu Nov 30 16:18:10 2017 | PROCESS PID: 27437 --> FATHER wait:  Success
+Thu Nov 30 16:46:04 2017 | PROCESS PID: 30365 --> FATHER SIGUSR1 recieved:  Success
+Thu Nov 30 16:46:04 2017 | PROCESS PID: 30365 --> FATHER SIGUSR2 recieved:  Success
+Thu Nov 30 16:46:04 2017 | PROCESS PID: 30366 --> CHILD SIGUSR1 recieved:  Success
+Thu Nov 30 16:46:04 2017 | PROCESS PID: 30366 --> CHILD SIGUSR2 recieved:  Success
+Thu Nov 30 16:46:05 2017 | PROCESS PID: 30365 --> FATHER first fork:  Success
+Thu Nov 30 16:46:05 2017 | PROCESS PID: 30365 --> FATHER SIGUSR2 sent:  Success
+Thu Nov 30 16:46:05 2017 | PROCESS PID: 30365 --> FATHER wait:  Success

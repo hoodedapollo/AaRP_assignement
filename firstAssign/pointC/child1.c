@@ -15,14 +15,14 @@ int main(int argc, char *argv[]) {
         ssize_t bytes_read[10];     // array which stores number of bytes read during each reading
         int total_bytes_read = 0;
 
-        fildes_firstpipe[0] = atoi(argv[1]);
+        fildes_firstpipe[0] = atoi(argv[1]);  // convert file descriptors into strings
         fildes_firstpipe[1] = atoi(argv[2]); 
 
         fildes_secondpipe[0] = atoi(argv[3]);
         fildes_secondpipe[1] = atoi(argv[4]); 
 
         printf("PLEASE INSERT 10 NUMBERS");  fflush(stdout); 
-        for(int i=0;i<10;i++) 
+        for(int i=0;i<10;i++) // store in an array ten numbers inserted through the keyboard
         {
                 printf("\n   insert the %d-th number --> ",i+1);  fflush(stdout);  
                 scanf_ret = scanf("%d", &v[i]);
@@ -31,14 +31,14 @@ int main(int argc, char *argv[]) {
 
         }
 
-        vector_print(v,"\nWELL DONE\nYou have inserted the following numbers:");
+        vector_print(v,"\nWELL DONE\nYou have inserted the following numbers:");  // print to stdout the vector
 
-        int close_p1read_ret = close(fildes_firstpipe[0]); 
+        int close_p1read_ret = close(fildes_firstpipe[0]); // before writing in the first pipe close its reading side 
         log_func("CHILD1 close first pipe read-side");
         err_control(close_p1read_ret,"CHILD1 close first pipe read-side: ",0); 
         size_t v_size = 10 * sizeof(v[0]);
         printf("\nWRITING IN THE PIPE...\n   size of vector v -->  %ld",v_size); fflush(stdout);
-        ssize_t bytes_written = write(fildes_firstpipe[1], v, v_size);
+        ssize_t bytes_written = write(fildes_firstpipe[1], v, v_size);  // write the array of numbers in the pipe
         log_func("CHILD1 write into first pipe");
         err_control(bytes_written,"CHILD1 write into first pipe: ",0);
         printf("\n   bytes written -->  %ld\n", bytes_written); fflush(stdout);
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
         size_t w_size = sizeof((w[0]));
         for (int i = 0; i<10; i++)
         {
-                bytes_read[i] = read(fildes_secondpipe[0], &w[i], w_size);
+                bytes_read[i] = read(fildes_secondpipe[0], &w[i], w_size);  // read one by one each element of the sorted array from the second pipe
                 log_func("CHILD1 i-th read");
                 err_control(bytes_read[i],"CHILD1 i-th read: ",0);
                 total_bytes_read = total_bytes_read + bytes_read[i];
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
                 printf("READING COMPLETED\n"); fflush(stdout);
         }
         
-        vector_print(w,"The ordered vector is:");
+        vector_print(w,"The ordered vector is:");  // print to stdout the sorted arrray of numbers 
 
         exit(EXIT_SUCCESS);
 

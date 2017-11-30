@@ -14,20 +14,20 @@ int main (int argc, char *argv[]) {
         ssize_t bytes_read[10];     // array which stores number of bytes read during each reading
         int total_bytes_read = 0;
 
-        fildes_firstpipe[0] = atoi(argv[1]);
+        fildes_firstpipe[0] = atoi(argv[1]);  // convert the file descriptors into numbers
         fildes_firstpipe[1] = atoi(argv[2]);
 
         fildes_secondpipe[0] = atoi(argv[3]);
         fildes_secondpipe[1] = atoi(argv[4]);
 
-        int close_p1write_ret = close(fildes_firstpipe[1]); 
+        int close_p1write_ret = close(fildes_firstpipe[1]); // before reading from first pipe close its writing side
         log_func("CHILD2 close first pipe write-side");
         err_control(close_p1write_ret,"CHILD2 close first pipe write-side: ",0);
 
         size_t w_size = sizeof(w[0]);
         for (int i = 0; i<10; i++) 
         {
-                bytes_read[i] = read(fildes_firstpipe[0], &w[i], w_size);
+                bytes_read[i] = read(fildes_firstpipe[0], &w[i], w_size);  // read, one by one, each element of the unsorted array
                 log_func("CHILD2 i-th read");
                 err_control(bytes_read[i],"CHILD2 i-th read: ",0);
 
@@ -49,11 +49,11 @@ int main (int argc, char *argv[]) {
 
 
 
-        int close_p1read_ret = close(fildes_firstpipe[0]);   
+        int close_p1read_ret = close(fildes_firstpipe[0]);  // after reading from first pipe close its reading side 
         log_func("CHILD2 close first pipe read-side");
         err_control(close_p1read_ret,"CHILD2 close first pipe read-side: ",0);
 
-        bubble_sort(w);
+        bubble_sort(w);  // sort the numbers in the array
 
         int close_p2read_ret = close(fildes_secondpipe[0]); // before writing close the reading side of the second pipe
         log_func("CHILD2 close second pipe read-side");
@@ -61,7 +61,7 @@ int main (int argc, char *argv[]) {
 
         size_t w_totsize = sizeof(w);
         printf("\nWRITING IN THE PIPE...\n   size of vector v -->  %ld",w_totsize); fflush(stdout);
-        ssize_t bytes_written = write(fildes_secondpipe[1], w, w_totsize);
+        ssize_t bytes_written = write(fildes_secondpipe[1], w, w_totsize);  // write the sorted array in the second pipe
         log_func("CHILD2 write into second pipe");
         err_control(bytes_written,"CHILD2 write into second pipe: ",0);
 
@@ -73,7 +73,7 @@ int main (int argc, char *argv[]) {
         else
                 printf("WRITING NOT COMPLETED\n"); fflush(stdout);
 
-        int close_p2write_ret = close(fildes_secondpipe[1]);
+        int close_p2write_ret = close(fildes_secondpipe[1]);  // after writing the sorted array in the second pipe close its writing side 
         log_func("CHILD2 close second pipe write-side");
         err_control(close_p2write_ret,"CHILD2 after writing close second pipe write-side: ",0);
 

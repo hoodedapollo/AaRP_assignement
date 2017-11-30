@@ -13,10 +13,10 @@ int main (int argc, char *argv[]) {
         ssize_t bytes_read[10];     // array which stores number of bytes read during each reading
         int total_bytes_read = 0;
 
-        fildes[0] = atoi(argv[1]);
+        fildes[0] = atoi(argv[1]);  // convert file descriptors into char arrays
         fildes[1] = atoi(argv[2]);
 
-        int close_write_ret = close(fildes[1]);
+        int close_write_ret = close(fildes[1]); // before reading from pipe close its writing side
         log_func("CHILD2 close pipe write-side");
         err_control(close_write_ret,"CHILD2 close pipe write-side: ",0);
 
@@ -24,7 +24,7 @@ int main (int argc, char *argv[]) {
         size_t w_size = sizeof((w[0]));
         for (int i = 0; i<10; i++) 
         {
-                bytes_read[i] = read(fildes[0], &w[i], w_size);
+                bytes_read[i] = read(fildes[0], &w[i], w_size); // read each element of the array from the pipe one after the other and store it in an array
                 log_func("CHILD2 i-th read");
                 err_control(bytes_read[i],"CHILD2 i-th read: ",0);
 
@@ -44,13 +44,13 @@ int main (int argc, char *argv[]) {
         else
                 printf("READING COMPLETED\n"); fflush(stdout);
 
-        int close_read_ret = close(fildes[0]);
+        int close_read_ret = close(fildes[0]);  // after reading from the pipe close its reading side 
         log_func("CHILD2 close pipe read-side");
         err_control(close_read_ret,"CHILD2 close pipe read-side: ",0);
 
-        bubble_sort(w);
+        bubble_sort(w);  // sort the number in the array
 
-        vector_print(w,"The ordered vector is");
+        vector_print(w,"The ordered vector is"); // print to stdout the sorted array of numbers
 
         exit(EXIT_SUCCESS);
 }

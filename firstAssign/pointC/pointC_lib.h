@@ -25,16 +25,15 @@ extern void signal_err_control(sighandler_t func_ret, char perror_msg[]) {
                 exit(EXIT_FAILURE);
         }
 }
-
 extern void log_func(char msg[]) {
-    FILE *f = fopen("pointC.log","a+");
+    FILE *f = fopen("pointrC.log","a+");  // open the log file in append mode
     char string_pid[5];
-    sprintf(string_pid, "%d", getpid());
-    time_t log_time = time(NULL);
-    char *string_time = asctime(localtime(&log_time));
-    strtok(string_time, "\n");
-    fprintf(f,"%s | PROCESS PID: %s --> %s:  %s\n", string_time, string_pid, msg, strerror(errno));
-    fclose(f);
+    sprintf(string_pid, "%d", getpid()); // trasform int pid into a character array 
+    time_t log_time = time(NULL);  // get time, day, month ...
+    char *string_time = asctime(localtime(&log_time));// convert time_t log_time into a string
+    strtok(string_time, "\n"); // remove the last element of the array which is \n  
+    fprintf(f,"%s | PROCESS PID: %s --> %s:  %s\n", string_time, string_pid, msg, strerror(errno)); // w
+    fclose(f); // close the log file
 }
 
 void handler(int signo) {  // signal handling function
@@ -61,7 +60,7 @@ void vector_print(int a[],char msg[]) {  // printing vector function
         printf(" ]\n\n");
 }
 
-void bubble_sort(int *a) {
+void bubble_sort(int *a) {  // vector sorting function
         for(int j = 0; j<10; j++)
         {
                 for(int i=0;i<9;i++)

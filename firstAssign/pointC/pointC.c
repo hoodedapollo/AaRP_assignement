@@ -19,7 +19,7 @@ int main (int argc, char *argv[]) {
         FILE *f = fopen("pointC.log", "w");  // clear the log file at each execution of the process
         fclose(f);
 
-        firstpipe_ret = pipe(fildes_firstpipe);                                       // here the pipe is created and the file descriptors are passed to fildes
+        firstpipe_ret = pipe(fildes_firstpipe); // here the pipe is created and the file descriptors are passed to fildes
         log_func("FATHER first pipe");
         err_control(firstpipe_ret,"FATHER first pipe: ",0);
 
@@ -65,13 +65,13 @@ int main (int argc, char *argv[]) {
                 err_control(exec_child2_ret,"FATHER child2 exec: ",0);
         }
 
-        if (fork_pid_child1 != 0 && fork_pid_child2 != 0)
+        if (fork_pid_child1 != 0 && fork_pid_child2 != 0)  // father process
         {
-                int first_wait_ret = wait(NULL);
+                int first_wait_ret = wait(NULL);  // wait for one of the children
                 log_func("FATHER first wait");
                 err_control(first_wait_ret,"FATHER first wait: ",0);
 
-                int second_wait_ret = wait(NULL);
+                int second_wait_ret = wait(NULL);  // wait for the other children
                 log_func("FATHER second wait");
                 err_control(second_wait_ret,"FATHER second wait: ",0);
 
