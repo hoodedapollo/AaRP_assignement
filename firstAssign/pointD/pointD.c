@@ -67,16 +67,16 @@ int main (int argc, char *argv[]) {
 
         if (fork_pid_child1 == 0)  // CHILD1
         {
-                argv[0] = "from_input_threads_two_childs"; // by definition the first element must be the bin path
-                exec_child1_ret = execve("from_input_threads_two_childs", argv, NULL);  // execute the bin file and superimpose its process to the child1 process                  
+                argv[0] = "client"; // by definition the first element must be the bin path
+                exec_child1_ret = execve("client", argv, NULL);  // execute the bin file and superimpose its process to the child1 process                  
                 log_func("FATHER: execve child1");
                 err_control(exec_child1_ret,"execve child1",0);  // child1 execve error handling
         }
 
         else if (fork_pid_child2 == 0) // CHILD2
         {
-                argv[0] = "output_threads_two_childs";  // by definition the first element must be the bin path 
-                exec_child2_ret = execve("output_threads_two_childs", argv, NULL);  // execute the bin file and superimpose its process to the child2 process                  ;
+                argv[0] = "server";  // by definition the first element must be the bin path 
+                exec_child2_ret = execve("server", argv, NULL);  // execute the bin file and superimpose its process to the child2 process                  ;
                 log_func("FATHER: execve child2");
                 err_control(exec_child2_ret,"execve child2",0);  // child2 error handling
         }
