@@ -21,8 +21,7 @@ class Subscriber {
             void set_num_pipe(int);
             void set_readfrompipe_filedes(int*, int*); // set file descriptor attributes of the pipe you read from
             void set_writeintopipe_filedes(int*, int*); // set file descriptor attributes of the pipe you write into 
-            char read_from_pipe(int); // read one char at a time from the pipe
-            void notify(int,int);
+            char notify_and_read(int,int);
 };
 
 void Subscriber::set_period(int sub_period)
@@ -59,13 +58,13 @@ void Subscriber::set_writeintopipe_filedes( int *filedes0, int *filedes1)
         }
 }
 
-char Subscriber::read_from_pipe(int which_pipe)                                 
+char Subscriber::notify_and_read(int which_pipe, int msg)
 {
-        read(pipe_filedes_reading_open[which_pipe], &actual_char, sizeof(char));
-        return actual_char;
-}
-
-void Subscriber::notify(int which_pipe, int msg)
-{
-        write(pipe_filedes_writing_open[which_pipe], &msg, sizeof(int));
+        while(1)
+        {
+                sleep(subscriber_period);
+                write(pipe_filedes_writing_open[which_pipe], &msg, sizeof(int));
+                read(pipe_filedes_reading_open[which_pipe], &actual_char, sizeof(char));
+                return actual_char;
+        }
 } 
