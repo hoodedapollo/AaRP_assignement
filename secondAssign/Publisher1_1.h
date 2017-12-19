@@ -19,7 +19,7 @@ class Publisher {
                 void set_period(int); // set publishing period
                 void set_pipe_filedes(int, int); // set file descriptor attributes
                 void set_pipe_filedes(char*,char*); // if file des are chars convert them into int before setting the corresponding attributes
-                void write_in_pipe(); // generate a random char and write it in the pipe at a given frequency
+                void write_in_pipe(char); // generate a random char and write it in the pipe at a given frequency
 };
 
 Publisher::Publisher (int pub_period)
@@ -48,10 +48,21 @@ void Publisher::set_pipe_filedes( char *filedes0, char *filedes1)
 
 
 
-void Publisher::write_in_pipe ()
+void Publisher::write_in_pipe (char Aa)
 {
-        sleep(publishing_period);
-        char randomletter = 'A' + (random() % 26);
-        int write_return = write(pipe_filedes_writing, &randomletter, sizeof(char));
+        char randomletter;
+        while(1)
+        {
+                sleep(publishing_period);
+                if (Aa == 'a')
+                {
+                        randomletter = 'a' + (random() % 26);
+                }
+                if (Aa == 'A')
+                {
+                        randomletter = 'A' + (random() % 26);
+                }
+                int write_return = write(pipe_filedes_writing, &randomletter, sizeof(char));
+        }
 }
     
