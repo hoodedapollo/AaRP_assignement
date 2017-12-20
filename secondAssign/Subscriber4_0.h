@@ -33,7 +33,7 @@ class Subscriber {
         public:
 
             Subscriber (int id ,int period, int num);
-            int get_subscriber_id(); 
+            int get__id(); 
             int get_num_pipes(); // return the number of pipes of the subscriber
             void set_data_filedes(int**); // set file descriptor attributes of the pipe you read from
             void set_notify_filedes(int**); // set file descriptor attributes of the pipe you write into 
@@ -56,7 +56,7 @@ Subscriber::Subscriber(int id, int period, int num )
         }
 }
 
-int Subscriber::get_subscriber_id()
+int Subscriber::get__id()
 {
         return sub_id;
 }
