@@ -10,22 +10,36 @@ using namespace std;
 
 class Publisher {
         private:
+                int pub_id;
                 int publishing_period;
                 int pipe_filedes_reading;
                 int pipe_filedes_writing;
 
         public:
-                Publisher(int);
+                Publisher(int,int); // constructor: publisher id, publisher period
+                void set_publisher_id(int); // set the publisher id
+                int publisher_id(); // return the publisher id
                 void set_period(int); // set publishing period
                 void set_pipe_filedes(int, int); // set file descriptor attributes
                 void set_pipe_filedes(char*,char*); // if file des are chars convert them into int before setting the corresponding attributes
-                int* publisher_filedes(); // returns publisher pipe file descriptors: first is the reading one, second is the writing one
+                int* publisher_filedes(); // return publisher pipe file descriptors: first is the reading one, second is the writing one
                 void write_in_pipe(char); // generate a random char and write it in the pipe once per period
 };
 
-Publisher::Publisher (int pub_period)
+Publisher::Publisher (int id, int pub_period) // constructor: publisher id, publisher period
 {
+        pub_id = id;
         publishing_period = pub_period;
+}
+
+void set_publisher_id(int id) // set publisher id
+{
+    pub_id = id;
+}
+
+int publisher_id() // return the publisher id
+{
+        return pub_id;
 }
 
 void Publisher::set_period(int pub_period)
