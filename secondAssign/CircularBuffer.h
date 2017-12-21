@@ -10,22 +10,22 @@ class Queue {
                 int *items;
 
         public:
-                Queue();
+                Queue(int buffer_size, int num_of_subs);
                 ~Queue();
                 bool isFull();
                 bool isEmpty();
                 void enQueue(int element);
-                int deQueue();
+                int deQueue(int sub_id);
                 void display();
 };
 
 Queue::Queue(int buffer_size, int num_of_subs)
 {
     subs_num = num_of_subs;    
-    item = new int[buffer_size];
+    items = new int[buffer_size];
     front = new int[num_of_subs];
-    rear = -1
-    for (int i = 0; i < subs_num)
+    rear = -1;
+    for (int i = 0; i < subs_num; i++)
     {
             front[i] = -1;
     }
@@ -47,7 +47,7 @@ bool Queue::isFull()
                 }
                 if(front[i] == rear +1)
                 {
-                        return true
+                        return true;
                 }
         }
         return false;
@@ -73,7 +73,7 @@ void Queue::enQueue(int element) // add element to the buffer
 //        }
 //        else
 //        {
-                for (int i = 0; i < sub_num; i++) // for all subscribers
+                for (int i = 0; i < subs_num; i++) // for all subscribers
                 {
                         if(front[i] == -1) // if the front pointer relative to the i-th subscriber is -1 
                         {
@@ -86,11 +86,11 @@ void Queue::enQueue(int element) // add element to the buffer
         //}
 }
 
-int Queue::deQueue(int subs_id) // returns the next element in the queue and updates the front pointer relative to the subs_id subscriber    
+int Queue::deQueue(int sub_id) // returns the next element in the queue and updates the front pointer relative to the subs_id subscriber    
 {
         int element;
         int counter = 0;
-        if (isEmpty)
+        if (isEmpty())
         {
                 cout << "Queue is empty" << endl;
                 return(-1);
@@ -115,7 +115,7 @@ int Queue::deQueue(int subs_id) // returns the next element in the queue and upd
                 }
                 else 
                 {
-                        front[subs_id] = (front[subs_id] + 1) % buffer_size; // update the front pointer relative to the sub_id subscriber
+                        front[sub_id] = (front[sub_id] + 1) % buffer_size; // update the front pointer relative to the sub_id subscriber
                 }
                 return(element);
         }
@@ -133,7 +133,7 @@ void Queue::display()
                 {
                         cout << "Front relative to subscriber " << i << " --> " << front[i] << endl;
                         cout << "Items relative to subscriber " << i << " --> ";
-                        for (j = front[i]; j != rear; j = (j+1) % buffer_size)
+                        for (int j = front[i]; j != rear; j = (j+1) % buffer_size)
                         {
                                 cout << items[j];
                         }
