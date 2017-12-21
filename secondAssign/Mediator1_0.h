@@ -17,16 +17,16 @@ class Mediator
                 int** subs_to_pubs_matching_table; // bidimensional array containing the subs id and the id of the publishers it is subscribed to. 
                 int** pubs_filedes; // array of file descriptors of the same pipe: pubs_fildes[i][0] is the reading file descriptor of the i-th publisher pipe, while pubs_fildes[i][1] is the writing one 
                 int** subs_notify_filedes; // same as *pubs_fildes but for subscribers' notify pipes
-                int* subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
+                int** subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
                 Queue* buffer;
         public:
-                Mediator(int);
-                ~Mediatori();
-                void fromPubs_checkNotify_BufToSubs; // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
+                Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** subscriber_data_fd, int** subscriber_notify_fd, int** matching_table);
+                ~Mediator();
+                void fromPubs_checkNotify_BufToSubs(); // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
 };
 
 
-Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** subscriber_data_fd, int** subscriber_notify_fd, int** matching_table)
+Mediator::Mediator(int num_of_pubs, int** publisher_fd, int num_of_subs, int** subscriber_data_fd, int** subscriber_notify_fd, int** matching_table)
 {
 //******************** dynamic memory allocation********************************************
 
@@ -51,13 +51,13 @@ Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** 
               subs_notify_filedes[i] = new int[2];
       }
 // Allocate a 2D array to store the matching table between subscribers and publishers, since a subscriber can subscribe to more topics published by different publishers 
-      subs_from_buffer = new int[num_of_subs];
+      subs_to_pubs_matching_table = new int*[num_of_subs];
       for (int i = 0; i < num_of_subs; i++)
       {
              subs_to_pubs_matching_table[i] = new int[num_of_pubs];
       }   
 // Allocate an array to store as many buffers as publishers
-      buffer = new Queue buffer[num_of_pubs];
+      buffer = new Queue[num_of_pubs];
         
 //*****************************initialization************************************************
 
@@ -76,7 +76,7 @@ Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** 
       {
               for (int j = 1; j < 2; j++)
               {
-                      subs_data_filedes[i][j] = subscrber_data_fd[i][j];
+                      subs_data_filedes[i][j] = subscriber_data_fd[i][j];
                       subs_notify_filedes[i][j] = subscriber_notify_fd[i][j];
               }
               close(subs_data_filedes[i][0]); // close reading file descriptor of i-th subscriber data pipe
@@ -89,14 +89,14 @@ Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** 
       int subscriptions_counter[num_of_pubs] = {0}; // number of subscribers which are subscribed to the topic published by the i-th publisher
       for (int i = 0; i < num_of_pubs; i++) // for each publisher
       {
-              for (int j = 0; j < num_subs; j++) // for each subscriber
+              for (int j = 0; j < num_of_subs; j++) // for each subscriber
               {
                       if (matching_table[j][i] == 1) // if the j-th subscriber is subscribed to the topic published by the i-th publisher 
                       {
                               subscriptions_counter[i]++; // increase the subscriptions counter of topic published by the i-th publisher
                       }
               }
-              buffer[i](BUFFER_SIZE,subscription_counter[i]); // contsruct the buffer relative to the topic published by the i-th publisher         
+              buffer[i].set_attributes(BUFFER_SIZE,subscriptions_counter[i]); // contsruct the buffer relative to the topic published by the i-th publisher         
       }        
 
 }
@@ -104,13 +104,13 @@ Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** 
 Mediator::~Mediator()
 {
     delete subs_to_pubs_matching_table;
-    delete pubs_fildes;
+    delete pubs_filedes;
     delete subs_notify_filedes;
     delete subs_data_filedes;
     delete buffer;
 }
 
-void fromPubs_checkNotify_BufToSubs() // control if any publisher has written a new char in its own pipe and if that is the case add it to the correspondig buffer + check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
+void Mediator::fromPubs_checkNotify_BufToSubs() // control if any publisher has written a new char in its own pipe and if that is the case add it to the correspondig buffer + check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
 {
         char new_data;
         fd_set pubs_read_fildes_set, notify_read_filedes_set, data_write_filedes_set; /// declare set of file descriptors
@@ -121,7 +121,7 @@ void fromPubs_checkNotify_BufToSubs() // control if any publisher has written a 
         {
                 for (int i = 0; i < pubs_num; i++) // assign the reading file descriptor of publisher pipes to the reading file descriptors set
                 {
-                        FD_SET(pubs_fildes[i][0], &pubs_read_fildes_set);
+                        FD_SET(pubs_filedes[i][0], &pubs_read_fildes_set);
                 }
 
                 for (int i = 0; i < subs_num; i++) // for all subscribers
@@ -136,9 +136,9 @@ void fromPubs_checkNotify_BufToSubs() // control if any publisher has written a 
 
                 for (int i = 0; i < pubs_num; i++) // for all pipes
                 {
-                        if ( FD_ISSET(pubs_fildes[i][0], &pubs_read_fildes_set) ) // if there is new data in the i-th publisher pipe 
+                        if ( FD_ISSET(pubs_filedes[i][0], &pubs_read_fildes_set) ) // if there is new data in the i-th publisher pipe 
                         {   
-                                read(pubs_fildes[i][0],&new_data,sizeof(char)); // read a char from the i-th publisher pipe
+                                read(pubs_filedes[i][0],&new_data,sizeof(char)); // read a char from the i-th publisher pipe
                                 buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
                         }
                 }
@@ -154,7 +154,7 @@ void fromPubs_checkNotify_BufToSubs() // control if any publisher has written a 
                                                 if (subs_to_pubs_matching_table[i][j] == 1) // if i-th subscriber is subscribed to j-th publisher
                                                 {
                                                         int data = buffer[j].deQueue(i); // get data from the j-th circular buffer(j-th publisher) to be sent to the i-th subscriber 
-                                                        write(subs_data_fildes[i][1], &data, sizeof(char)); // write the data in the i-th subscriber data pipe 
+                                                        write(subs_data_filedes[i][1], &data, sizeof(char)); // write the data in the i-th subscriber data pipe 
                                                 }
                                         }
                                 }
