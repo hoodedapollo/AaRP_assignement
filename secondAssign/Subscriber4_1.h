@@ -19,7 +19,8 @@ class Subscriber {
 
         public:
 
-            Subscriber (int id ,int period, int num);
+            Subscriber(int id ,int period, int num);
+            ~Subscriber();
             int get_id(); 
             int get_num_pipes(); // return the number of pipes of the subscriber
             void set_data_filedes(int**); // set file descriptor attributes of the pipe you read from
