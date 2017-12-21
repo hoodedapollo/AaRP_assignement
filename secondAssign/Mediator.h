@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+#include "CircularBuffer.h"
+#include "auxiliary_functions.h"
 
 using namespace std;
 
@@ -13,12 +15,12 @@ class Mediator
                 int** subs_to_pubs_matching_table; // bidimensional array containing the subs id and the id of the publishers it is subscribed to. 
                 int** pubs_filedes; // array of file descriptors of the same pipe: pubs_fildes[i][0] is the reading file descriptor of the i-th publisher pipe, while pubs_fildes[i][1] is the writing one 
                 int** subs_notify_filedes; // same as *pubs_fildes but for subscribers' notify pipes
-                int *subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
-                // class circular_buffer* buffer;
+                int* subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
+                Queue* buffer;
         public:
                 Mediator(int);
-                void pubs_to_buffer(); // control if any publisher has written a new char in its own pipe and if that is the case add it to the correspondig buffer
-                void check_notify_and_buf_to_subs(); // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
+                ~Mediatori();
+                void fromPubs_checkNotify_BufToSubs; // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
 };
 
 
@@ -53,7 +55,7 @@ Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** 
              subs_to_pubs_matching_table[i] = new int[pubs_num];
       }   
 // Allocate an array to store as many buffers as publishers
-      // buffer = new class circular_buffer[pubs_num];
+      buffer = new Queue buffer[pubs_num];
         
 //*****************************initialization************************************************
 
@@ -82,42 +84,47 @@ Mediator::Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** 
       subs_to_pubs_matching_table = matching_table;
 }
 
-void pubs_to_buffer()  // control if any publisher has written a new char in its own pipe and if that is the case add it to the correspondig buffer   
+Mediator::~Mediator()
+{
+    delete subs_to_pubs_matching_table;
+    delete pubs_fildes;
+    delete subs_notify_filedes;
+    delete subs_data_filedes;
+    delete buffer;
+}
+
+void fromPubs_checkNotify_BufToSubs() // control if any publisher has written a new char in its own pipe and if that is the case add it to the correspondig buffer + check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
 {
         char new_data;
-        fd_set pubs_read_fildes_set; // declaration  of reading file descriptors set
-        FD_ZERO(&pubs_read_fildes_set); // initialization of reading file descriptors set
-        for (int i = 0; i < pubs_num; i++) // assign the reading file descriptor of publisher pipes to the reading file descriptors set
-        {
-                FD_SET(pubs_fildes[i][0], &pubs_read_fildes_set);
-        }
-        select(max_positive_in_column_2D_array(pubs_filedes, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the pipes
-        for (int i = 0; i < pubs_num; i++) // for all pipes
-        {
-                if ( FD_ISSET(pubs_fildes[i][0], &pubs_read_fildes_set) ) // if there is new data in the i-th publisher pipe 
-                {   
-                        read(pubs_fildes[i][0],&new_data,sizeof(char)); // read a char from the i-th publisher pipe
-                        //buffer[i].add = new_data; // add the char read from the i-th publisher pipe to the corresponding i-th buffer
-                }
-        }
-
-}    
-
-void check_notify_and_buf_to_subs() // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
-{
-        fd_set notify_read_filedes_set, data_write_filedes_set; // decleare the two set of file descriptors
-        FD_ZERO(&notify_read_filedes_set); // initialize the sets
-        FD_ZERO(&data_write_filedes_set);
+        fd_set pubs_read_fildes_set, notify_read_filedes_set, data_write_filedes_set; /// declare set of file descriptors
+        FD_ZERO(&pubs_read_fildes_set); // initialize the set of reading from publishers'pipe file descriptors
+        FD_ZERO(&notify_read_filedes_set); // initialize the set of reading from subscribers' notify pipes 
+        FD_ZERO(&data_write_filedes_set); // initialize the set of writing into subscribers'data pipes
         while(1) 
         {
+                for (int i = 0; i < pubs_num; i++) // assign the reading file descriptor of publisher pipes to the reading file descriptors set
+                {
+                        FD_SET(pubs_fildes[i][0], &pubs_read_fildes_set);
+                }
+
                 for (int i = 0; i < subs_num; i++) // for all subscribers
                 {
                         FD_SET(subs_notify_filedes[i][0], &notify_read_filedes_set); // add the notify reading file descriptor of the i-th subscriber to the set
                         FD_SET(subs_data_filedes[i][1], &data_write_filedes_set); // add the data writing file descriptor of the i-th subscriber to the set
                 }
 
+                select(max_positive_in_column_2D_array(pubs_filedes, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the pipes
                 select(max_positive_in_column_2D_array(subs_notify_filedes, 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the i-th subscriber notify pipe
                 select(max_positive_in_column_2D_array(subs_data_filedes, 1) + 1, NULL, &data_write_filedes_set, NULL, NULL); // control if it is possible to write in the i-th subscriber data pipe
+
+                for (int i = 0; i < pubs_num; i++) // for all pipes
+                {
+                        if ( FD_ISSET(pubs_fildes[i][0], &pubs_read_fildes_set) ) // if there is new data in the i-th publisher pipe 
+                        {   
+                                read(pubs_fildes[i][0],&new_data,sizeof(char)); // read a char from the i-th publisher pipe
+                                buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
+                        }
+                }
 
                 for (int i = 0; i < subs_num; i++) // for all subscribers
                 {
