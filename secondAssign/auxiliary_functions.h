@@ -20,7 +20,7 @@ int max_positve_element(int *array)  // maximus positive element in an integer v
         return max_fd;
 }
 
-int max_positive_in_column_2D_array(int **table, int column)
+int max_positive_in_column_2D_array(int **table, int column) // return the maximum element of a single column of a 2D array of integers
 {
         int max_fd = 0;
         int size = sizeof(array)/( column * sizeof(int)); // number of elements in a column (number of rows)
