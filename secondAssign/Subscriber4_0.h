@@ -66,7 +66,7 @@ int Subscriber::get_num_pipes() // return the number of pipes of the subscriber
         return num_pipes;
 }
 
-void Subscriber::set_data_filedes( int *filedes[2]) // takes an array of bidimensional arrays which element are the reading file descriptors and the writing ones of the i-th data pipe
+void Subscriber::set_data_filedes( int** filedes) // takes an array of bidimensional arrays which element are the reading file descriptors and the writing ones of the i-th data pipe
 {
         for (int i = 0; i < num_pipes; i++) // for each pipe 
         {
@@ -76,7 +76,7 @@ void Subscriber::set_data_filedes( int *filedes[2]) // takes an array of bidimen
         }
 }
 
-void Subscriber::set_notify_filedes( int *filedes[2]) // takes an array of bidimensional arrays which element are the reading file descriptors and the writing ones of the i-th notify pipe
+void Subscriber::set_notify_filedes( int** filedes) // takes an array of bidimensional arrays which element are the reading file descriptors and the writing ones of the i-th notify pipe
 {
         for (int i = 0; i < num_pipes; i++) // for each pipe 
         {
