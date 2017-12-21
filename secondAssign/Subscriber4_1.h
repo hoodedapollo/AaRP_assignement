@@ -4,22 +4,9 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/select.h>
+#include "auxiliary_functions.h"
 
 using namespace std;
-
-int max_positve_element(int *array)  // maximus positive element in an integer vector
-{
-        int  max_fd = 0;
-        int size = sizeof(array)/sizeof(int);
-        for (int i=0; i < size; i++)
-        {
-                if (array[i] > max_fd)
-                {
-                        max_fd = array[i];
-                } 
-        }
-        return max_fd;
-}
 
 class Subscriber {
         private:
@@ -33,7 +20,7 @@ class Subscriber {
         public:
 
             Subscriber (int id ,int period, int num);
-            int get__id(); 
+            int get_id(); 
             int get_num_pipes(); // return the number of pipes of the subscriber
             void set_data_filedes(int**); // set file descriptor attributes of the pipe you read from
             void set_notify_filedes(int**); // set file descriptor attributes of the pipe you write into 
@@ -56,7 +43,14 @@ Subscriber::Subscriber(int id, int period, int num )
         }
 }
 
-int Subscriber::get__id()
+Subscriber::~Subscriber()
+{
+        delete char_read;
+        delete pipe_data_filedes;
+        delete pipe_notify_filedes;
+}
+
+int Subscriber::get_id()
 {
         return sub_id;
 }
