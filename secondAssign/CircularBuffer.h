@@ -10,8 +10,10 @@ class Queue {
                 int *items;
 
         public:
+                Queue();
                 Queue(int buffer_size, int num_of_subs);
                 ~Queue();
+                void set_attributes(int buffer_size, int num_of_subs);
                 bool isFull();
                 bool isEmpty();
                 void enQueue(int element);
@@ -20,6 +22,18 @@ class Queue {
 };
 
 Queue::Queue(int buffer_size, int num_of_subs)
+{
+    subs_num = num_of_subs;    
+    items = new int[buffer_size];
+    front = new int[num_of_subs];
+    rear = -1;
+    for (int i = 0; i < subs_num; i++)
+    {
+            front[i] = -1;
+    }
+}
+
+void Queue::set_attributes(int buffer_size, int num_of_subs)
 {
     subs_num = num_of_subs;    
     items = new int[buffer_size];
