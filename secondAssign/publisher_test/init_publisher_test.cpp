@@ -37,17 +37,27 @@ int main (int argc, char* argv[])
         if (fork_pid > 0) // father process
         {
                 char single_char;
-                int a;
+                int kbd_input;
+                fd_set standard_input;
+                FD_ZERO(&standard_input);
                 close(filedes[1]);
                 while(1)
                 {
-                        if (cin >> a && a == 1 )
+                        kbd_input = 0;
+                        FD_SET(0, &standard_input);
+                        select(1, &standard_input, NULL, NULL, NULL);
+                        if (FD_ISSET(0, &standard_input))
                         {
-                                return -1;
+                                read(0, &kbd_input, sizeof(int));
+                                if (kbd_input == 1)
+                                {
+                                        return -1;
+                                }
                         }        
 
                         read(filedes[0], &single_char, sizeof(char));
                         cout << single_char << endl;
-                }
+                } 
         }
-};
+        return 0;
+}
