@@ -33,3 +33,13 @@ int max_positive_in_column_2D_array(int **table, int column) // return the maxim
         }
         return max_fd;
 }
+
+void int_2Darray_dynamic_alloc(int ** table, int rows, int columns)
+{
+        table = new int*[rows];
+                for (int i = 0; i < rows; i++)
+                {
+                        table[i] = new int[columns];
+                }
+}
+
