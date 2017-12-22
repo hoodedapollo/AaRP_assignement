@@ -36,8 +36,8 @@ Subscriber::Subscriber(int id, int period, int num_of_pipes )
         pipes_num = num_of_pipes; // set the number of data pipes (which by definition is equal to the number of notify pipes)
         char_read = new char[num_of_pipes]; // read one char per pipe 
 
-        int_2D_array_dynamic_alloc(pipe_data_filedes, num_of_pipes, 2); 
-        int_2D_array_dynamic_alloc(pipe_notify_filedes, num_of_pipes, 2); 
+        int_2Darray_dynamic_alloc(pipe_data_filedes, num_of_pipes, 2); 
+        int_2Darray_dynamic_alloc(pipe_notify_filedes, num_of_pipes, 2); 
 }
 
 Subscriber::~Subscriber()
@@ -69,7 +69,7 @@ void Subscriber::set_data_filedes( int** filedes) // takes an array of bidimensi
 
 void Subscriber::set_notify_filedes( int** filedes) // takes an array of bidimensional arrays which element are the reading file descriptors and the writing ones of the i-th notify pipe
 {
-        for (int i = 0; i < num_pipes; i++) // for each pipe 
+        for (int i = 0; i < pipes_num; i++) // for each pipe 
         {
                 pipe_notify_filedes[i][0] = filedes[i][0]; // set pipe_data_filedes[i][0] as the reading file descriptor of the i-th notify pipe
                 pipe_notify_filedes[i][1] = filedes[i][1]; // set pipe_data_filedes[i][1] as the writing file descriptor of the i-th notify pipe 
@@ -86,7 +86,7 @@ char* Subscriber::notify_and_read(int msg) // once per period notify the mediato
         while(1) // infinite cicle
         {
                 sleep(sub_period); // do the notify and read once per period 
-                for (int i = 0; i < num_pipes; i++) // for each pipe
+                for (int i = 0; i < pipes_num; i++) // for each pipe
                 {
                         FD_SET(pipe_data_filedes[i][0], &readfrom_fildes); // insert the incoming pipes file descriptors in the readfrom set of file descriptors
                         write(pipe_notify_filedes[i][1], &msg, sizeof(int)); // send an int type notify writing it the outgoing pipes
@@ -95,7 +95,7 @@ char* Subscriber::notify_and_read(int msg) // once per period notify the mediato
                 int max_fd = max_positve_element(pipe_data_filedes[0]); // compute the maximum file descriptor among the ones in the readfrom set
                 select(max_fd + 1, &readfrom_fildes, NULL, NULL, NULL); // find which pipes among the readfrom set have new elemnts in them
                 
-                for (int i = 0; i < num_pipes; i++) // for each pipe
+                for (int i = 0; i < pipes_num; i++) // for each pipe
                 {
                         if (FD_ISSET(pipe_data_filedes[i][0], &readfrom_fildes)) // if the incoming pipe has new elements
                         {
