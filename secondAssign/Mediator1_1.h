@@ -31,31 +31,17 @@ Mediator::Mediator(int num_of_pubs, int** publisher_fd, int num_of_subs, int** s
 //******************** dynamic memory allocation********************************************
 
       pubs_num = num_of_pubs; // set the attribute number of publishers
-
-// Allocate a 2D array to store the two file descriptor of each publisher pipe 
-      pubs_filedes = new int*[num_of_pubs]; 
-
-      for (int i = 0; i < num_of_pubs; i++)
-      {
-            pubs_filedes[i] = new int[2];
-      }
-
       subs_num = num_of_subs; // set the attribute number of subscribers
 
+      int_2Darray_dynamic_alloc(pubs_filedes, num_of_pubs, 2); // Allocate a 2D array to store the two file descriptor of each publisher pipe 
+
 // Allocate two  2D array to store the two file descriptor of each subscriber pipes (notify pipe and data pipe) 
-      subs_notify_filedes = new int*[num_of_subs]; // notify pipe 2D array of file descriptors
-      subs_data_filedes = new int*[num_of_subs]; // data pipe 2D array of file descriptors
-      for (int i = 0; i < num_of_subs; i++)
-      {
-              subs_data_filedes[i] = new int[2];
-              subs_notify_filedes[i] = new int[2];
-      }
+      int_2Darray_dynamic_alloc(subs_notify_filedes, num_of_subs, 2);
+      int_2Darray_dynamic_alloc(subs_data_filedes, num_of_subs, 2);
+
 // Allocate a 2D array to store the matching table between subscribers and publishers, since a subscriber can subscribe to more topics published by different publishers 
-      subs_to_pubs_matching_table = new int*[num_of_subs];
-      for (int i = 0; i < num_of_subs; i++)
-      {
-             subs_to_pubs_matching_table[i] = new int[num_of_pubs];
-      }   
+      int_2Darray_dynamic_alloc(subs_to_pubs_matching_table, num_of_subs, num_of_pubs);
+
 // Allocate an array to store as many buffers as publishers
       buffer = new Queue[num_of_pubs];
         
