@@ -11,7 +11,7 @@ using namespace std;
 class Subscriber {
         private:
             int sub_id;
-            int num_pipes; // it must be public for the mediator to know how many pipes it must set up for the specifc subscriber
+            int pipes_num; // it must be public for the mediator to know how many pipes it must set up for the specifc subscriber
             int sub_period;
             char* char_read; // in this case we want the information recived from the subscriber to be accessibile outside it
             int** pipe_data_filedes; // array of file descriptors of pipes from which the subscriber reads data: pipe_data_filedes[i][0] reading file descriptor of i-th pipe, pipe_data_filedes[i][1] writing file descriptor of i-th pipe
@@ -29,19 +29,15 @@ class Subscriber {
 
 };
 
-Subscriber::Subscriber(int id, int period, int num )
+Subscriber::Subscriber(int id, int period, int num_of_pipes )
 {   
         sub_id = id; 
         sub_period = period; // set the period with which the subscriber will send a notify to the mediator in order to get newest data 
-        num_pipes = num; // set the number of data pipes (which by definition is equal to the number of notify pipes)
-        char_read = new char[num_pipes]; // read one char per pipe 
-        pipe_data_filedes = new int*[num_pipes]; // set the dimension of the array which will store the data pipe descriptors accordingly to the numner of data pipes
-        pipe_notify_filedes = new int*[num_pipes]; // set the dimension of the array which will store the notify pipe descriptors accordingly to the numner of notify pipes
-        for (int i = 0; i < num_pipes; i++)
-        {
-               pipe_data_filedes[i] = new int[2]; 
-               pipe_notify_filedes[i] = new int[2]; 
-        }
+        pipes_num = num_of_pipes; // set the number of data pipes (which by definition is equal to the number of notify pipes)
+        char_read = new char[num_of_pipes]; // read one char per pipe 
+
+        int_2D_array_dynamic_alloc(pipe_data_filedes, num_of_pipes, 2); 
+        int_2D_array_dynamic_alloc(pipe_notify_filedes, num_of_pipes, 2); 
 }
 
 Subscriber::~Subscriber()
@@ -58,12 +54,12 @@ int Subscriber::get_id()
 
 int Subscriber::get_num_pipes() // return the number of pipes of the subscriber
 {
-        return num_pipes;
+        return pipes_num;
 }
 
 void Subscriber::set_data_filedes( int** filedes) // takes an array of bidimensional arrays which element are the reading file descriptors and the writing ones of the i-th data pipe
 {
-        for (int i = 0; i < num_pipes; i++) // for each pipe 
+        for (int i = 0; i < pipes_num; i++) // for each pipe 
         {
                 pipe_data_filedes[i][0] = filedes[i][0]; // set pipe_data_filedes[i][0] as the reading file descriptor of the i-th data pipe
                 pipe_data_filedes[i][1] = filedes[i][1]; // set pipe_data_filedes[i][1] as the writing file descriptor of the i-th data pipe 
