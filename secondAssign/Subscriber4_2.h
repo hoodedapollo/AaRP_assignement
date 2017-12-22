@@ -36,8 +36,8 @@ Subscriber::Subscriber(int id, int period, int num_of_pipes )
         pipes_num = num_of_pipes; // set the number of data pipes (which by definition is equal to the number of notify pipes)
         char_read = new char[num_of_pipes]; // read one char per pipe 
 
-        int_2Darray_dynamic_alloc(pipe_data_filedes, num_of_pipes, 2); 
-        int_2Darray_dynamic_alloc(pipe_notify_filedes, num_of_pipes, 2); 
+        int_2Darray_dynamic_alloc(pipe_data_filedes, num_of_pipes, 2); // Allocate a 2D array for subscriber's data pipes file descriptors 
+        int_2Darray_dynamic_alloc(pipe_notify_filedes, num_of_pipes, 2);  // Allocate a 2D array for subscriber's notify pipes file descriptors
 }
 
 Subscriber::~Subscriber()
