@@ -59,5 +59,7 @@ int main (int argc, char* argv[])
                         cout << single_char << endl;
                 } 
         }
+
+        wait(NULL);
         return 0;
 }
