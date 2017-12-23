@@ -42,8 +42,6 @@ int main (int argc, char* argv[])
                 argv[2] = char_filedes[1];
                 argv[3] = NULL;
                 
-                cout << "CHILD before execve\n" << endl;
-//                while(1){;
                 execve("publisher_test_child", argv, NULL);
         }
 
@@ -73,7 +71,7 @@ int main (int argc, char* argv[])
                         cout << "FATHER: read " << single_char << endl;
                 } 
                 int wait_ret = wait(NULL);
-                cout << "wait return --> " << wait_ret << endl;
+                cout << "FATHER: wait return --> " << wait_ret << endl;
         }
 
         return 0;
