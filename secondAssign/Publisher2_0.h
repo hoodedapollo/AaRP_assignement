@@ -41,8 +41,8 @@ Publisher::Publisher (int pub_period, char* filedes0, char* filedes1) // constru
 void Publisher::write_in_pipe (char Aa) // generate a random char, capitol letter or not depending on Aa, and write it in the pipe once per period
 {
         char randomletter;
-        while(1)
-        {
+         while(1)
+           {
                 sleep(publishing_period);
                 if (Aa == 'a')
                 {
@@ -52,7 +52,10 @@ void Publisher::write_in_pipe (char Aa) // generate a random char, capitol lette
                 {
                         randomletter = 'A' + (random() % 26);
                 }
-                int write_return = write(pipe_filedes_writing, &randomletter, sizeof(char));
+                int write_return = write(pipe_filedes_writing, &randomletter, sizeof(randomletter));
+                perror("write");
+                cout << "Publisher: write return " << write_return <<" letter " <<  randomletter << endl;
+
         }
 }
     
