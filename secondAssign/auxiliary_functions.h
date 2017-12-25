@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/select.h>
-
+#include <stdio.h>
+#include <vector>
 
 int max_positve_element(int *array)  // maximus positive element in an integer vector
 {
@@ -20,15 +21,14 @@ int max_positve_element(int *array)  // maximus positive element in an integer v
         return max_fd;
 }
 
-int max_positive_in_column_2D_array(int **table, int column) // return the maximum element of a single column of a 2D array of integers
+int max_positive_in_column_2D_array( std::vector<std::vector<int> > table, int column) // return the maximum element of a single column of a 2D array of integers
 {
         int max_fd = 0;
-        int size = sizeof(table)/( column * sizeof(int)); // number of elements in a column (number of rows)
-        for (int i=0; i < size; i++)
+        for (unsigned int i=0; i < table.size(); i++) // for all the rows
         {
-                if (table[i][column] > max_fd)
+                if (table[i][column] > max_fd) // if the element of the given column and i-th row is larger than max_fd
                 {
-                        max_fd = table[i][column];
+                        max_fd = table[i][column]; // update max_fd
                 }
         }
         return max_fd;
