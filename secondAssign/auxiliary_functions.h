@@ -7,15 +7,14 @@
 #include <stdio.h>
 #include <vector>
 
-int max_positve_element(int *array)  // maximus positive element in an integer vector
+int max_positve_element(std::vector<int> v)  // maximus positive element in an integer vector
 {
         int  max_fd = 0;
-        int size = sizeof(array)/sizeof(int); // number of elements in the array
-        for (int i=0; i < size; i++)
+        for (unsigned int i=0; i < v.size(); i++)
         {
-                if (array[i] > max_fd)
+                if (v[i] > max_fd)
                 {
-                        max_fd = array[i];
+                        max_fd = v[i];
                 }
         }
         return max_fd;
