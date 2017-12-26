@@ -89,7 +89,6 @@ int main (int argc, char* argv[])
                 FD_ZERO(&notify_input_set);
                 while(1)
                 {
-                        single_char = 'A' + (rand() % 26);
 
                         for (int i = 0; i < pipes_num; i++) // for all pipes
                         {
@@ -100,6 +99,8 @@ int main (int argc, char* argv[])
 
                         for (int i = 0; i < pipes_num; i++)
                         {
+                                single_char = 'A' + (rand() % 26);
+
                                 if (FD_ISSET(vector_notify_filedes[i][0], &notify_input_set)) // check if the reading file descriptor of the i-th notify pipe is still in the notify_input_set
                                 {
                                         write(vector_data_filedes[i][1], &single_char, sizeof(single_char)); // write the content of single_char in the i-th data pipe
