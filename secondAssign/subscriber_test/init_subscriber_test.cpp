@@ -11,43 +11,39 @@
 
 using namespace std;
 
+#define PIPES_NUM 2
 
 int main (int argc, char* argv[])
 {
-        int pipes_num = 2;
+        int pipes_num = PIPES_NUM;
         vector<int> row_fd(2,0);
-        vector<vector<int> > vector_filedes(pipes_num,row_fd); // fildes[2][2]
-        char char_filedes[2][2][6];
+        vector<vector<int> > vector_data_filedes(pipes_num,row_fd); // fildes[2][2]
+        vector<vector<int> > vector_notify_filedes(pipes_num,row_fd); // fildes[2][2]
+        char char_data_filedes[2][2][6];
+        char char_notify_filedes[2][2][6];
 
         for (int i = 0; i < pipes_num; i++) // for each row which denotes a pipe
         {
-                pipe(vector_filedes[i].data());              
+                pipe(vector_data_filedes[i].data());              
+                perror("pipe");
+                pipe(vector_notify_filedes[i].data());              
                 perror("pipe");
         }
 
         cout << "FATHER:" << endl;
-        for (unsigned int i = 0; i < vector_filedes.size(); i++)
+        for (int i = 0; i < pipes_num; i++)
         {
                 for (int j = 0; j < 2; j++)
                 {
-                        cout << "first pipe reading int fd: vector_filedes[" << i << "][" << j << "] --> " << vector_filedes[i][j] << endl;
+                        cout << "data pipe int fd: vector_data_filedes[" << i << "][" << j << "] --> " << vector_data_filedes[i][j] << endl;
+                        sprintf(char_data_filedes[i][j], "%d", vector_data_filedes[i][j]); // convert first pipe reading integer file descriptor into a string of char 
+                        cout << "data pipe char fd: char_data_filedes[" << i << "][" << j << "] --> " << char_data_filedes[i][j] << endl << endl;
+
+                        cout << "notify pipe int fd: vector_notify_filedes[" << i << "][" << j << "] --> " << vector_notify_filedes[i][j] << endl;
+                        sprintf(char_notify_filedes[i][j], "%d", vector_notify_filedes[i][j]); // convert first pipe reading integer file descriptor into a string of char 
+                        cout << "notify pipe char fd: char_notify_filedes[" << i << "][" << j << "] --> " << char_notify_filedes[i][j] << endl << endl;
                 }
         }
-
-        for (unsigned int i = 0; i < vector_filedes.size(); i++)
-        {
-                for (int j = 0; j < 2; j++)
-                {
-                    sprintf(char_filedes[i][j], "%d", vector_filedes[i][j]); // convert first pipe reading integer file descriptor into a string of char 
-                }
-        }
-
-        cout << "FATHER:" << endl;
-        cout << "first pipe reading char fd: char_filedes[0][0] --> " << char_filedes[0][0] << endl;
-        cout << "first pipe writing char fd: char_filedes[0][1] --> " << char_filedes[0][1] << endl;
-
-        cout << "second pipe reading char fd: char_fildes[1][0] --> " << char_filedes[1][0] << endl;
-        cout << "second pipe writing char fd: char_fildes[1][1] --> " << char_filedes[1][1] << endl;
 
         pid_t fork_pid = fork();
         perror("fork");
@@ -63,38 +59,50 @@ int main (int argc, char* argv[])
                 argv[0] = "subscriber_test_child";
 
                 int j = 0;
-                int q = 0;
+                int q = 1;
                 while (j < pipes_num)
                 {
-                        argv[q] = char_filedes[j][0]; // reading file descriptor of the j-th pipe
+                        argv[q] = char_data_filedes[j][0]; // reading file descriptor of the j-th pipe
                         q++; // increase the argv index
-                        argv[q] = char_filedes[j][1]; // writing file descritpor of the j-th pipe
+                        argv[q] = char_data_filedes[j][1]; // writing file descritpor of the j-th pipe
                         q++; // increase the argv index
                         j++; // increase the pipe index
                 }
-                argv[q+1] = NULL; // the last elment of the argv array must be NULL 
+                j = 0;
+                while (j < pipes_num)
+                {
+                        argv[q] = char_notify_filedes[j][0]; // reading file descriptor of the j-th pipe
+                        q++; // increase the argv index
+                        argv[q] = char_notify_filedes[j][1]; // writing file descritpor of the j-th pipe
+                        q++; // increase the argv index
+                        j++; // increase the pipe index
+                }
+
+                argv[q] = NULL; // the last elment of the argv array must be NULL
 
                 execve("subscriber_test_child", argv, NULL);
         }
         else // father process
         {
-                char single_char = 'A';
+                char single_char;
                 fd_set notify_input_set; // declare the reading file descriptors set of all the notify pipes
                 FD_ZERO(&notify_input_set);
                 while(1)
                 {
+                        single_char = 'A' + (rand() % 26);
+
                         for (int i = 0; i < pipes_num; i++) // for all pipes
                         {
-                                FD_SET(vector_filedes[i][0], &notify_input_set); // each loop add the reading file descriptor of the i-th notify pipe 
+                                FD_SET(vector_notify_filedes[i][0], &notify_input_set); // each loop add the reading file descriptor of the i-th notify pipe
                         }
 
-                        select(max_positive_in_column_2D_array(vector_filedes,0) + 1, &notify_input_set, NULL, NULL, NULL); // check if there is some new data in all the notify pipes, if not remove the corresponding reading file descriptor from the notify_input_set
+                        select(max_positive_in_column_2D_array(vector_notify_filedes,0) + 1, &notify_input_set, NULL, NULL, NULL); // check if there is some new data in all the notify pipes, if not remove the corresponding reading file descriptor from the notify_input_set
 
                         for (int i = 0; i < pipes_num; i++)
-                        {        
-                                if (FD_ISSET(vector_filedes[i][0], &notify_input_set)) // check if the reading file descriptor of the i-th notify pipe is still in the notify_input_set
+                        {
+                                if (FD_ISSET(vector_notify_filedes[i][0], &notify_input_set)) // check if the reading file descriptor of the i-th notify pipe is still in the notify_input_set
                                 {
-                                        write(vector_filedes[i][1], &single_char, sizeof(single_char)); // write the content of single_char in the i-th data pipe 
+                                        write(vector_data_filedes[i][1], &single_char, sizeof(single_char)); // write the content of single_char in the i-th data pipe
                                 }
                         }
                 }
