@@ -14,86 +14,85 @@ class Mediator
         private:
                 int pubs_num; // number of publishers which is equal to the number of buffers they respectively write into
                 int subs_num; // number of subscribers
-                int** subs_to_pubs_matching_table; // bidimensional array containing the subs id and the id of the publishers it is subscribed to. 
-                int** pubs_filedes; // array of file descriptors of the same pipe: pubs_fildes[i][0] is the reading file descriptor of the i-th publisher pipe, while pubs_fildes[i][1] is the writing one 
-                int** subs_notify_filedes; // same as *pubs_fildes but for subscribers' notify pipes
-                int** subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
+                int pipes_counter;
+                vector<vector<int> > subs_to_pubs_matching_table; // bidimensional array containing the subs id and the id of the publishers it is subscribed to. 
+                vector<vector<int> > pubs_filedes; // array of file descriptors of the same pipe: pubs_fildes[i][0] is the reading file descriptor of the i-th publisher pipe, while pubs_fildes[i][1] is the writing one 
+                vector<vector<vector<int> > > subs_notify_filedes; // same as pubs_fildes but for subscribers' notify pipes
+                vector<vector<vector<int> > > subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
                 Queue* buffer;
         public:
-                Mediator(int num_of_pubs, int** pubslisher_fd, int num_of_subs, int** subscriber_data_fd, int** subscriber_notify_fd, int** matching_table);
-                ~Mediator();
+                Mediator(int num_of_pubs, vector<vector<int> > pubslisher_fd, int num_of_subs, vector<vector<vector<int> > > subscriber_data_fd, vector<vector<vector<int> > >subscriber_notify_fd, vector<vector<int> > matching_table);
                 void fromPubs_checkNotify_BufToSubs(); // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
 };
 
 
-Mediator::Mediator(int num_of_pubs, int** publisher_fd, int num_of_subs, int** subscriber_data_fd, int** subscriber_notify_fd, int** matching_table)
+Mediator::Mediator(int num_of_pubs, vector<vector<int> > pubslisher_fd, int num_of_subs, vector<vector<int> > subscriber_data_fd, vector<vector<int> > subscriber_notify_fd, vector<vector<int> > matching_tableiint num_of_pubs, vector<vector<int> > pubslisher_fd, int num_of_subs, vector<vector<int> > subscriber_data_fd, vector<vector<int> > subscriber_notify_fd, vector<vector<int> > matching_table)
 {
 //******************** dynamic memory allocation********************************************
 
       pubs_num = num_of_pubs; // set the attribute number of publishers
       subs_num = num_of_subs; // set the attribute number of subscribers
+        
+      // vector<int> table_row(num_of_pubs,0)
+      // subs_to_pubs_matching_table.resize(num_of_subs,table_row);
+      
+      subs_to_pubs_matching_table = matching_table;
 
-      int_2Darray_dynamic_alloc(pubs_filedes, num_of_pubs, 2); // Allocate a 2D array to store the two file descriptor of each publisher pipe 
+      // pipes_counter = 0;
+      // for (unsigned int i = 0; i < num_of_subs; i++)
+      // {
+      //         for (unsigned int j = 0; j < num_of_pubs; j++)
+      //         {
+      //                if (matching_table[i][j] = 1)
+      //                {
+      //                        pipes_counter++;
+      //                }
+      //         }
+      // }
+      //
+      // vector<int> row_fd(2,0);
+      // pubs_filedes.resize(num_of_pubs,row_fd);
+      // subs_data_filedes.resize(pipes_counter, row_fd);
+      // subs_notify_filedes.resize(pipes_counter, row_fd);
 
-// Allocate two  2D array to store the two file descriptor of each subscriber pipes (notify pipe and data pipe) 
-      int_2Darray_dynamic_alloc(subs_notify_filedes, num_of_subs, 2);
-      int_2Darray_dynamic_alloc(subs_data_filedes, num_of_subs, 2);
+      pubs_filedes = pubslisher_fd;
+      for (int i = 0; i < num_of_pubs; i++)
+      {
+              close(pubs_filedes[i][1]); // close writing file descriptor of i-th publisher pipe
+      }
 
-// Allocate a 2D array to store the matching table between subscribers and publishers, since a subscriber can subscribe to more topics published by different publishers 
-      int_2Darray_dynamic_alloc(subs_to_pubs_matching_table, num_of_subs, num_of_pubs);
+      subs_data_filedes = subscriber_data_fd;
+      subs_notify_filedes = subscriber_notify_fd;
+      for (unsigned int i = 0; i < subscriber_data_fd.size(); i++)
+      {
+              for(unsigned int j = 0; j < subscriber_data_fd[i].size(); j++)
+              close(subs_data_filedes[i][j][0]);
+              close(subs_notify_filedes[i][j][1]);
+      }              
 
 // Allocate an array to store as many buffers as publishers
       buffer = new Queue[num_of_pubs];
         
-//*****************************initialization************************************************
-
-// Initialize the 2D array of publishers' file descriptors and close the writing ones
-      for (int i = 0; i < num_of_pubs; i++)
-      {
-              for (int j = 1; j < 2; j++)
-              {
-                      pubs_filedes[i][j] = publisher_fd[i][j];
-              }
-              close(pubs_filedes[i][1]); // close writing file descriptor of i-th publisher pipe
-      }
-
-// Initialize the 2D array of subscribers' file descriptors: close the notify pipes writing file descriptors and the data pipes reading ones 
-      for (int i = 0; i < num_of_subs; i++)
-      {
-              for (int j = 1; j < 2; j++)
-              {
-                      subs_data_filedes[i][j] = subscriber_data_fd[i][j];
-                      subs_notify_filedes[i][j] = subscriber_notify_fd[i][j];
-              }
-              close(subs_data_filedes[i][0]); // close reading file descriptor of i-th subscriber data pipe
-              close(subs_notify_filedes[i][1]); // close writing file descriptor of i-th subscriber notif pipe
-      }
-// Initialize the 2D array matching table which says which subscriber (row) is subscribed to which publisher (column)  
-      subs_to_pubs_matching_table = matching_table;
-
 // Initialize the buffers based on the matching table informations
-      int subscriptions_counter[num_of_pubs] = {0}; // number of subscribers which are subscribed to the topic published by the i-th publisher
-      for (int i = 0; i < num_of_pubs; i++) // for each publisher
-      {
-              for (int j = 0; j < num_of_subs; j++) // for each subscriber
-              {
-                      if (matching_table[j][i] == 1) // if the j-th subscriber is subscribed to the topic published by the i-th publisher 
-                      {
-                              subscriptions_counter[i]++; // increase the subscriptions counter of topic published by the i-th publisher
-                      }
-              }
+      vector<int> subscriptions_counter(num_of_pubs,0); // number of subscribers which are subscribed to the topic published by the i-th publisher
+     for (unsigned int i = 0; i < subscriber_data_fd.size(); i++)
+     {
+             subscriptions_counter[i] = subscriber_data_fd[i].size();
+     }
+
+      // for (int i = 0; i < num_of_pubs; i++) // for each publisher
+      // {
+      //         for (int j = 0; j < num_of_subs; j++) // for each subscriber
+      //         {
+      //                 if (matching_table[j][i] == 1) // if the j-th subscriber is subscribed to the topic published by the i-th publisher
+      //                 {
+      //                         subscriptions_counter[i]++; // increase the subscriptions counter of topic published by the i-th publisher
+      //                 }
+      //         }
+               
               buffer[i].set_attributes(BUFFER_SIZE,subscriptions_counter[i]); // contsruct the buffer relative to the topic published by the i-th publisher         
       }        
 
-}
-
-Mediator::~Mediator()
-{
-    delete subs_to_pubs_matching_table;
-    delete pubs_filedes;
-    delete subs_notify_filedes;
-    delete subs_data_filedes;
-    delete buffer;
 }
 
 void Mediator::fromPubs_checkNotify_BufToSubs() // control if any publisher has written a new char in its own pipe and if that is the case add it to the correspondig buffer + check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
@@ -110,31 +109,36 @@ void Mediator::fromPubs_checkNotify_BufToSubs() // control if any publisher has 
                         FD_SET(pubs_filedes[i][0], &pubs_read_fildes_set);
                 }
 
-                for (int i = 0; i < subs_num; i++) // for all subscribers
+                for (unsigned int i = 0; i < subs_data_filedes.size(); i++) // for all subscribers
                 {
-                        FD_SET(subs_notify_filedes[i][0], &notify_read_filedes_set); // add the notify reading file descriptor of the i-th subscriber to the set
-                        FD_SET(subs_data_filedes[i][1], &data_write_filedes_set); // add the data writing file descriptor of the i-th subscriber to the set
+                        for (unsigned int j = 0; j < subs_data_filedes[i].size(); j++)
+                        {
+                                FD_SET(subs_notify_filedes[i][j][0], &notify_read_filedes_set); // add the notify reading file descriptor of the i-th subscriber to the set
+                                FD_SET(subs_data_filedes[i][j][1], &data_write_filedes_set); // add the data writing file descriptor of the i-th subscriber to the set
+                        }
                 }
 
                 select(max_positive_in_column_2D_array(pubs_filedes, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the pipes
                 select(max_positive_in_column_2D_array(subs_notify_filedes, 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the i-th subscriber notify pipe
-                select(max_positive_in_column_2D_array(subs_data_filedes, 1) + 1, NULL, &data_write_filedes_set, NULL, NULL); // control if it is possible to write in the i-th subscriber data pipe
+//                select(max_positive_in_column_2D_array(subs_data_filedes, 1) + 1, NULL, &data_write_filedes_set, NULL, NULL); // control if it is possible to write in the i-th subscriber data pipe
 
                 for (int i = 0; i < pubs_num; i++) // for all pipes
                 {
                         if ( FD_ISSET(pubs_filedes[i][0], &pubs_read_fildes_set) ) // if there is new data in the i-th publisher pipe 
                         {   
-                                read(pubs_filedes[i][0],&new_data,sizeof(char)); // read a char from the i-th publisher pipe
+                                read(pubs_filedes[i][0],&new_data,sizeof(new_data)); // read a char from the i-th publisher pipe
                                 buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
                         }
                 }
 
-                for (int i = 0; i < subs_num; i++) // for all subscribers
+                for (unsigned int i = 0; i < subs_data_filedes.size(); i++) // for all subscribers
                 {
-                        if ( FD_ISSET(subs_notify_filedes[i][0], &notify_read_filedes_set) ) // if the i-th subscriber sent a request for new data
+                        for (unsigned int j = 0; j < subs_data_filedes[i].size(); j++)
                         {
-                                if ( FD_ISSET(subs_data_filedes[i][1], &data_write_filedes_set) ) // if it is possible to write in the i-th subscriber data pipe 
+                                if ( FD_ISSET(subs_notify_filedes[i][j][0], &notify_read_filedes_set) ) // if a request for new data was sent trough the i-th pipe
                                 {
+                                        //                                if ( FD_ISSET(subs_data_filedes[i][1], &data_write_filedes_set) ) // if it is possible to write in the i-th subscriber data pipe 
+                                        //                                {
                                         for (int j = 0; j < pubs_num; j++) // for all publishers
                                         {
                                                 if (subs_to_pubs_matching_table[i][j] == 1) // if i-th subscriber is subscribed to j-th publisher
@@ -143,10 +147,11 @@ void Mediator::fromPubs_checkNotify_BufToSubs() // control if any publisher has 
                                                         write(subs_data_filedes[i][1], &data, sizeof(char)); // write the data in the i-th subscriber data pipe 
                                                 }
                                         }
-                                }
-                                else  // if it is not possible to write in the i-th subscriber data pipe 
-                                {
-                                        cout << "No space available to write in " << i << "-th subscriber data pipe" << endl;
+                                        //                                }
+                                        //                                else  // if it is not possible to write in the i-th subscriber data pipe 
+                                        //                                {
+                                        //                                        cout << "No space available to write in " << i << "-th subscriber data pipe" << endl;
+                                        //                                }
                                 }
                         }
                 }
@@ -154,4 +159,4 @@ void Mediator::fromPubs_checkNotify_BufToSubs() // control if any publisher has 
 }
 
 
-                       
+
