@@ -30,8 +30,8 @@ SubscriptionTable::SubscriptionTable(int num_of_subs, int num_of_pubs) // genera
 { 
         string answer;
         
-        pubs_num = num_of_subs;
         subs_num = num_of_subs;
+        pubs_num = num_of_pubs;
 
         // table dynamic memory allocation
         table.resize(num_of_subs);
