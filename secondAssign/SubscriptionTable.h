@@ -14,6 +14,8 @@ class SubscriptionTable
                 int pubs_num;
                 int subs_num;
                 vector<vector<int> > table;
+                vector<vector<vector<int> > > vector_data_filedes;
+                vector<vector<vector<int> > > vector_notify_filedes;
         public:
                 SubscriptionTable(int num_of_subs, int num_of_pubs); // generate a table in which is specified which subscriber is subscribed to which pulisher's topic by asking the user for information, paramenters are the number of publishers and subscribers
                 SubscriptionTable(vector<vector<vector<int> > > matching_table); // given the matching table as a paramenter is sets the number of subscribers as the number of rows of the table and the number of publishers as the number of columns of the first row of the table
@@ -27,6 +29,9 @@ class SubscriptionTable
 SubscriptionTable::SubscriptionTable(int num_of_subs, int num_of_pubs) // generate a table in which is specified which subscriber is subscribed to which pulisher's topic by asking the user for information, paramenters are the number of publishers and subscribers
 { 
         string answer;
+        
+        pubs_num = num_of_subs;
+        subs_num = num_of_subs;
 
         // table dynamic memory allocation
         table.resize(num_of_subs);
@@ -81,7 +86,7 @@ vector<vector<vector<int> > > SubscriptionTable::generateDataPipes() // generate
         // declare a 3D vector based on the number of subscribers and publishers ( 2 file descriptors per pipe)
         vector<int> two_fd(2,0);
         vector<vector<int> > pubs_row(pubs_num, two_fd);
-        vector<vector<vector<int> > > vector_data_filedes(subs_num,pubs_row);
+        vector_data_filedes.resize(subs_num,pubs_row);
         
         // for the element in the matching table
         for (int i = 0; i < subs_num; i++)
@@ -100,7 +105,7 @@ vector<vector<vector<int> > > SubscriptionTable::generateNotifyPipes() // genera
 {
         vector<int> two_fd(2,0);
         vector<vector<int> > pubs_row(pubs_num, two_fd);
-        vector<vector<vector<int> > > vector_notify_filedes(subs_num,pubs_row);
+        vector_notify_filedes.resize(subs_num,pubs_row);
         for (int i = 0; i < subs_num; i++)
         {
                 for (int j = 0; j < pubs_num; j++)
