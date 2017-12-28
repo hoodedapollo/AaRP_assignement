@@ -123,7 +123,7 @@ void int_2Darray_dynamic_alloc(int ** table, int rows, int columns) // Dynamic a
 // }
 
 
-char** fromVecToArrayOfStringFds(std::vector<std::vector<std::vector<int> > > filedes_3Dtable) // convert a 3Dvector of file descriptors into an array of string where each string is a file descriptor, first two element of the array are the number of subscribers and the number of publishers 
+char** subsFdsFrom3DVecToStrArray(vector<vector<vector<int> > > filedes_3Dtable) // convert a 3Dvector of file descriptors into an array of string where each string is a file descriptor, first two element of the array are the number of subscribers and the number of publishers 
 {
         int subs_num = filedes_3Dtable.size(); // number of rows of the table corresponds to the number of subscribers
         int pubs_num = filedes_3Dtable[0].size(); // number of columns of the table corresponds to the number of publishers
@@ -158,15 +158,44 @@ char** fromVecToArrayOfStringFds(std::vector<std::vector<std::vector<int> > > fi
         return array;
 }
 
+char** pubsFdsFrom2DVecToStrArray(vector<vector<int> >  filedes_2Dtable) // convert a 3Dvector of file descriptors into an array of string where each string is a file descriptor, first two element of the array are the number of subscribers and the number of publishers 
+{
+        int pubs_num = filedes_2Dtable.size(); // number of rows of the table corresponds to the number of subscribers
 
-std::vector<std::vector<std::vector<int> > > fromCharToVecFds(char* filedes[]) // build a 3Dvector of fildescriptors from an array which stores th number of subscribers and publishers and all the file descriptors
+        char** array; 
+        int array_length = (1 + 2*pubs_num); // allocate memory dynamically to store all the file descriptors + two element for the number of subscribers and the number of publishers
+        array = new char*[array_length];
+        for (int i = 0; i < array_length; i++)
+        {
+                array[i] = new char[NCHAR_FOR_INT];
+        }
+        sprintf(array[0], "%d", pubs_num); // store the number of subscribers in the first element of the array 
+        int q = 1; // start to store the file descriptors from the third element since the first two are no more available 
+            for (int i = 0; i < pubs_num; i++)
+            {
+                    sprintf(array[q],"%d", filedes_2Dtable[i][0]); // store the reading file descriptor converting it into a string
+                    q++;
+            }
+        
+
+        
+            for (int i = 0; i < pubs_num; i++)
+            {
+                    sprintf(array[q],"%d", filedes_2Dtable[i][1]); // store the writing file descriptor converting it into a string
+                    q++;
+            }
+         
+        return array;
+}
+
+std::vector<std::vector<std::vector<int> > > fromStrArrayTo3DVecFds(char* filedes[]) // build a 3Dvector of fildescriptors from an array which stores th number of subscribers and publishers and all the file descriptors
 {
        int subs_num = atoi(filedes[0]); 
        int pubs_num = atoi(filedes[1]);
 
-       std::vector<int> fd_row(2,0);
-       std::vector<std::vector<int> > pubs_row(pubs_num, fd_row);
-       std::vector<std::vector<std::vector<int> > > filedes_3Dtable(subs_num, pubs_row);
+       vector<int> fd_row(2,0);
+       vector<vector<int> > pubs_row(pubs_num, fd_row);
+       vector<vector<vector<int> > > filedes_3Dtable(subs_num, pubs_row);
        int q = 2;
                for (int i = 0; i < subs_num; i++)
                {
@@ -189,4 +218,25 @@ std::vector<std::vector<std::vector<int> > > fromCharToVecFds(char* filedes[]) /
 }
                
         
-    
+vector<vector<int> > fromStrArrayTo2DVecFds(char* filedes[]) // build a 3Dvector of fildescriptors from an array which stores th number of subscribers and publishers and all the file descriptors
+{
+        int pubs_num = atoi(filedes[0]); 
+
+        vector<int> fd_row(2,0);
+        vector<vector<int> > filedes_2Dtable(pubs_num, fd_row);
+        int q = 1;
+        for (int i = 0; i < pubs_num; i++)
+        {
+                filedes_2Dtable[i][0] = atoi(filedes[q]); 
+                q++;
+        }
+
+
+        for (int i = 0; i < pubs_num; i++)
+        {
+                filedes_2Dtable[i][1] = atoi(filedes[q]); 
+                q++;
+        }
+        return filedes_2Dtable;
+}
+
