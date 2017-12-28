@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <vector>
 
+using namespace std;
+
 #define NCHAR_FOR_INT 6
 
 int max_positve_element(std::vector<int> v)  // maximus positive element in an integer vector
@@ -125,6 +127,7 @@ char** fromVecToArrayOfStringFds(std::vector<std::vector<std::vector<int> > > fi
 {
         int subs_num = filedes_3Dtable.size(); // number of rows of the table corresponds to the number of subscribers
         int pubs_num = filedes_3Dtable[0].size(); // number of columns of the table corresponds to the number of publishers
+
         char** array; 
         int array_length = (2 + 2*(subs_num * pubs_num)); // allocate memory dynamically to store all the file descriptors + two element for the number of subscribers and the number of publishers
         array = new char*[array_length];
