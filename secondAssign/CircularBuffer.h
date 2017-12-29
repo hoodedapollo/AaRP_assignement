@@ -21,6 +21,10 @@ class Queue {
                 void display();
 };
 
+Queue::Queue()
+{
+}
+
 Queue::Queue(int buffer_size, int num_of_subs)
 {
     subs_num = num_of_subs;    
@@ -114,7 +118,7 @@ int Queue::deQueue(int sub_id) // returns the next element in the queue and upda
                 element = items[front[sub_id]]; // store the element pointed by the front pointer of the subs_id subscriber in element
                 for (int i = 0; i < subs_num; i++) // for all the subsscriber
                 { 
-                        if (front[i] = rear) // if the front pointer of the i-th subscriber is equal to rear pointer
+                        if (front[i] == rear) // if the front pointer of the i-th subscriber is equal to rear pointer
                         {
                                 counter++; // update the counter 
                         }
