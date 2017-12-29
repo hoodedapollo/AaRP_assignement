@@ -51,7 +51,7 @@ SubscriptionTable::SubscriptionTable() // generate a table in which is specified
         { 
                 for(int j = 0; j < pubs_num; j++)
                 {
-                        cout << "Is subscriber " << i << "subscribed to topic published by publisher " << j << "?\n"; 
+                        cout << "Is subscriber " << i << " subscribed to topic published by publisher " << j << "?\n"; 
                         cin >> answer;
                         if (answer.compare("y") == 0 || answer.compare("yes") ==0)
                         {
@@ -84,7 +84,7 @@ SubscriptionTable::SubscriptionTable(int num_of_subs, int num_of_pubs) // genera
         { 
                 for(int j = 0; j < num_of_pubs; j++)
                 {
-                        cout << "Is subscriber " << i << "subscribed to topic published by publisher " << j << "?\n"; 
+                        cout << "Is subscriber " << i << " subscribed to topic published by publisher " << j << "?\n"; 
                         cin >> answer;
                         if (answer.compare("y") == 0 || answer.compare("yes") ==0)
                         {
