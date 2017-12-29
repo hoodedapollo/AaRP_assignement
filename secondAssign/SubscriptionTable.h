@@ -13,6 +13,8 @@ class SubscriptionTable
         private:
                 int pubs_num;
                 int subs_num;
+                char** pubs_periods_str_array;
+                char** pubs_mod;
                 vector<vector<int> > table;
                 vector<vector<int> > vector_pubs_filedes; 
                 vector<vector<vector<int> > > vector_data_filedes;
@@ -24,6 +26,8 @@ class SubscriptionTable
                 vector<vector<int> >getTable(); // returns the matching table
                 int isSubscribedTo(int sub, int pub); // if subscriber sub is subscribed to th topic published by publisher pub it returns 1 otherway it returns 0
                 vector<vector<int> > generatePublisherPipes();
+                char** getPublisherModArray();
+                char** getPublisherPeriodArray();
                 vector<vector<vector<int> > > generateDataPipes(); // generate the table of data pipes file descriptors based on the matching table built by the constructor
                 vector<vector<vector<int> > > generateNotifyPipes(); // generate the table of notify pipes file descriptors based on the matching table built by the constructor
 
@@ -38,6 +42,23 @@ SubscriptionTable::SubscriptionTable() // generate a table in which is specified
         cin >> pubs_num;
         cout << "How many subscriber do you want?" << "\n\n";
         cin >> subs_num;
+
+        pubs_periods_str_array = new char*[pubs_num];
+        pubs_mod = new char*[pubs_num];
+
+//ask for the subscription period of each subscriber and store it in a pointer to char* and ask if it must write capitol letter or not ( set default to normal letter)
+        for(int i = 0; i < pubs_num; i++)
+        {
+                cout << "Choose the publishing period of the " << i << "-th publisher (seconds)" << endl;
+                cin >> pubs_periods_str_array[i];
+
+                cout << "What do you want the " << i << "-th publisher to do? (choose a number)\n     0: publish a random normal letter\n     1: publish a random capitol letter" << endl; 
+                cin >> pubs_mod[i];
+                if (*pubs_mod[i] != '0' || *pubs_mod[i] != '1')
+                {
+                       pubs_mod[i] = 0;
+                } 
+        }
 
         // table dynamic memory allocation
         table.resize(subs_num);
@@ -72,6 +93,23 @@ SubscriptionTable::SubscriptionTable(int num_of_subs, int num_of_pubs) // genera
         subs_num = num_of_subs;
         pubs_num = num_of_pubs;
 
+        pubs_periods_str_array = new char*[pubs_num];
+        pubs_mod = new char*[pubs_num];
+
+//ask for the subscription period of each subscriber and store it in a pointer to char* and ask if it must write capitol letter or not ( set default to normal letter)
+        for(int i = 0; i < pubs_num; i++)
+        {
+                cout << "Choose the publishing period of the " << i << "-th publisher (seconds)" << endl;
+                cin >> pubs_periods_str_array[i];
+
+                cout << "What do you want the " << i << "-th publisher to do? (choose a number)\n     0: publish a random normal letter\n     1: publish a random capitol letter" << endl; 
+                cin >> pubs_mod[i];
+                if (*pubs_mod[i] != '0' || *pubs_mod[i] != '1')
+                {
+                       pubs_mod[i] = 0;
+                } 
+        }
+
         // table dynamic memory allocation
         table.resize(num_of_subs);
         for(int i = 0; i < num_of_subs; i++)
@@ -79,7 +117,7 @@ SubscriptionTable::SubscriptionTable(int num_of_subs, int num_of_pubs) // genera
                 table[i].resize(num_of_pubs,0);
         } 
 
-        // build the table asking the user for information
+        // build the matching table asking the user for information
         for ( int i = 0; i < num_of_subs; i++ )
         { 
                 for(int j = 0; j < num_of_pubs; j++)
@@ -130,6 +168,16 @@ vector<vector<int> > SubscriptionTable::generatePublisherPipes()
                 pipe(vector_pubs_filedes[i].data());
         }
         return vector_pubs_filedes;
+}
+
+char** SubscriptionTable::getPublisherModArray()
+{
+        return pubs_mod;
+}
+
+char** SubscriptionTable::getPublisherPeriodArray()
+{
+        return pubs_periods_str_array;
 }
 
 vector<vector<vector<int> > > SubscriptionTable::generateDataPipes() // generate the table of data pipes file descriptors based on the matching table built by the constructor
