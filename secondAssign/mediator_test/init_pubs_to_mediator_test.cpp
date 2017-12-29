@@ -26,8 +26,15 @@ int main(int argc, char* argv[])
         char** subs_data_fd_str_array;
         char** subs_notify_fd_str_array;
         char** matching_str_array;
+        
+
+        char** pubs_mode_str_array;
+        char** pubs_periods_str_array;
 
         SubscriptionTable filedes_source_table(subs_num, pubs_num);
+        
+        pubs_mode_str_array = filedes_source_table.getPublisherModArray();
+        pubs_periods_str_array = filedes_source_table.getPublisherPeriodArray();
 
         matching_table = filedes_source_table.getTable();
         pubs_fd_2Dtable = filedes_source_table.generatePublisherPipes();
@@ -102,12 +109,32 @@ int main(int argc, char* argv[])
                         {
                                 argv[0] = "pub_child";
                                 sprintf(argv[1], "%d", i); // child process id
-                                int j;
-                                for (j = 2; j < length_of_pubs_fd_str_array + 2; j++) // pass the array of strings (publishers' file descriptors)
+                                int i = 2;
+                                int q = 0;
+                                while(q < length_of_pubs_fd_str_array) // pass the array of strings (publishers' file descriptors)
                                 {
-                                        argv[j] = pubs_fd_str_array[j-2];
+                                        argv[i] = pubs_fd_str_array[q];
+                                        i++;
+                                        q++;
                                 }
-                                argv[j+1] = NULL;
+
+                                q = 0;
+                                while(q < pubs_num)
+                                {
+                                        argv[i] = pubs_mode_str_array[q];
+                                        i++;
+                                        q++;
+                                }
+
+                                q = 0;
+                                while(q < pubs_num)
+                                {
+                                        argv[i] = pubs_periods_str_array[q];
+                                        i++;
+                                        q++;
+                                }
+                                
+                                argv[i] = NULL;
                                  
                                 execve("pub_child", argv, NULL); 
                         }
