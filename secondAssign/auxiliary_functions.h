@@ -241,7 +241,7 @@ vector<vector<int> > fromStrArrayTo2DVecFds(char* filedes[]) // build a 2Dvector
 }
 
 
-char** matchingTableFrom2DVecToStrArray(vector<vector<int> >  matching_table) // convert a 3Dvector of file descriptors into an array of string where each string is a file descriptor, first two element of the array are the number of subscribers and the number of publishers 
+char** from2DVecToStrArrayMatchingTable(vector<vector<int> >  matching_table) // convert a 3Dvector of file descriptors into an array of string where each string is a file descriptor, first two element of the array are the number of subscribers and the number of publishers 
 {
         char** array; 
 
