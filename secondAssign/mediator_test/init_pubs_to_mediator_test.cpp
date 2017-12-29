@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
         char** pubs_fd_str_array;
         char** subs_data_fd_str_array;
         char** subs_notify_fd_str_array;
-        char** matching_array;
+        char** matching_str_array;
 
         SubscriptionTable filedes_source_table(subs_num, pubs_num);
 
@@ -34,12 +34,12 @@ int main(int argc, char* argv[])
         subs_data_fd_3Dtable = filedes_source_table.generateDataPipes();
         subs_notify_fd_3Dtable = filedes_source_table.generateNotifyPipes();
 
-        matching_array = matchingTableFrom2DVecToStrArray(matching_table);
+        matching_str_array = from2DVecToStrArrayMatchingTable(matching_table);
         pubs_fd_str_array = pubsFdsFrom2DVecToStrArray(pubs_fd_2Dtable);
         subs_data_fd_str_array = subsFdsFrom3DVecToStrArray(subs_data_fd_3Dtable);
         subs_notify_fd_str_array = subsFdsFrom3DVecToStrArray(subs_notify_fd_3Dtable);
 
-        int length_of_matching_table_str_array = 2 + subs_num * pubs_num;
+        int length_of_matching_str_array = 2 + subs_num * pubs_num;
         int length_of_pubs_fd_str_array = 1 + 2*pubs_num;
         int length_of_subs_fd_str_array = 2 + 2*(subs_num * pubs_num);
 
@@ -73,9 +73,9 @@ int main(int argc, char* argv[])
                        q++;
                 }
                 q = 0;
-                while(q < length_of_matching_table_str_array)
+                while(q < length_of_matching_str_array)
                 {
-                       argv[i] = matching_array[q];
+                       argv[i] = matching_str_array[q];
                        i++;
                        q++; 
                 }
