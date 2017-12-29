@@ -21,22 +21,22 @@ class Mediator
                 vector<vector<vector<int> > > subs_data_filedes; // same as *pubs_fildes but for subscribers' readfrom pipes
                 Queue* buffer;
         public:
-                Mediator(int num_of_pubs, vector<vector<int> > pubslisher_fd, int num_of_subs, vector<vector<vector<int> > > subscriber_data_fd, vector<vector<vector<int> > >subscriber_notify_fd, vector<vector<int> > matching_table);
+                Mediator(vector<vector<int> > pubslisher_fd, vector<vector<vector<int> > > subscriber_data_fd, vector<vector<vector<int> > >subscriber_notify_fd, vector<vector<int> > matching_table);
                 void fromPubs_checkNotify_BufToSubs(); // check if a subscriber ha notified that it wants new data and in that case sends it the newest data sent by the publisher it is subscribed to (which is stored in a circular buffer); 
 };
 
 
-Mediator::Mediator(int num_of_pubs, vector<vector<int> > pubslisher_fd, int num_of_subs, vector<vector<int> > subscriber_data_fd, vector<vector<int> > subscriber_notify_fd, vector<vector<int> > matching_tableiint num_of_pubs, vector<vector<int> > pubslisher_fd, int num_of_subs, vector<vector<int> > subscriber_data_fd, vector<vector<int> > subscriber_notify_fd, vector<vector<int> > matching_table)
+Mediator::Mediator(vector<vector<int> > pubslisher_fd, vector<vector<vector<int> > > subscriber_data_fd, vector<vector<vector<int> > >  subscriber_notify_fd, vector<vector<int> > matching_table)
 {
 //******************** dynamic memory allocation********************************************
 
-      pubs_num = num_of_pubs; // set the attribute number of publishers
-      subs_num = num_of_subs; // set the attribute number of subscribers
+      pubs_num = pubslisher_fd.size(); // set the attribute number of publishers
+      subs_num = subscriber_data_fd.size(); // set the attribute number of subscribers
         
       subs_to_pubs_matching_table = matching_table;
 
       pubs_filedes = pubslisher_fd;
-      for (int i = 0; i < num_of_pubs; i++)
+      for (int i = 0; i < pubs_num; i++)
       {
               close(pubs_filedes[i][1]); // close writing file descriptor of i-th publisher pipe
       }
@@ -44,9 +44,9 @@ Mediator::Mediator(int num_of_pubs, vector<vector<int> > pubslisher_fd, int num_
       subs_data_filedes = subscriber_data_fd;
       subs_notify_filedes = subscriber_notify_fd;
 
-      for (int i = 0; i < num_of_subs; i++) // for all subs
+      for (int i = 0; i < subs_num; i++) // for all subs
       {
-              for(int j = 0; j < num_of_pubs; j++) // for all pubs
+              for(int j = 0; j < pubs_num; j++) // for all pubs
               {
                       if (matching_table[i][j] == 1) // if i-th subscriber is subscribed to the j-th publisher --> the corresponding data and notify pipe file descriptors do exist
                       {
@@ -57,14 +57,14 @@ Mediator::Mediator(int num_of_pubs, vector<vector<int> > pubslisher_fd, int num_
       }              
 
 // Allocate an array to store as many buffers as publishers
-      buffer = new Queue[num_of_pubs];
+      buffer = new Queue[pubs_num];
         
 // Initialize the buffers based on the matching table informations
-      vector<int> subscriptions_counter(num_of_pubs,0); // number of subscribers which are subscribed to the topic published by the i-th publisher
+      vector<int> subscriptions_counter(pubs_num,0); // number of subscribers which are subscribed to the topic published by the i-th publisher
 
-      for (int i = 0; i < num_of_pubs; i++) // for each publisher
+      for (int i = 0; i < pubs_num; i++) // for each publisher
       {
-              for (int j = 0; j < num_of_subs; j++) // for each subscriber
+              for (int j = 0; j < subs_num; j++) // for each subscriber
               {
                       if (matching_table[j][i] == 1) // if the j-th subscriber is subscribed to the topic published by the i-th publisher
                       {
@@ -102,7 +102,7 @@ void Mediator::fromPubs_checkNotify_BufToSubs() // control if any publisher has 
                 }
 
                 select(max_positive_in_column_2D_array(pubs_filedes, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the publishers' pipes
-                select(max_positive_in_column_2D_array(subs_notify_filedes, 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the subscriber's notify pipe
+                select(max_positive_in_column_2D_array(subs_notify_filedes[0], 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the subscriber's notify pipe
 
                 for (int i = 0; i < pubs_num; i++) // for all pipes
                 {
