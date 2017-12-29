@@ -188,7 +188,7 @@ char** pubsFdsFrom2DVecToStrArray(vector<vector<int> >  filedes_2Dtable) // conv
         return array;
 }
 
-std::vector<std::vector<std::vector<int> > > fromStrArrayTo3DVecFds(char* filedes[]) // build a 3Dvector of fildescriptors from an array which stores th number of subscribers and publishers and all the file descriptors
+vector<vector<vector<int> > > fromStrArrayTo3DVecFds(char* filedes[]) // build a 3Dvector of fildescriptors from an array which stores th number of subscribers and publishers and all the file descriptors
 {
        int subs_num = atoi(filedes[0]); 
        int pubs_num = atoi(filedes[1]);
@@ -218,7 +218,7 @@ std::vector<std::vector<std::vector<int> > > fromStrArrayTo3DVecFds(char* filede
 }
                
         
-vector<vector<int> > fromStrArrayTo2DVecFds(char* filedes[]) // build a 3Dvector of fildescriptors from an array which stores th number of subscribers and publishers and all the file descriptors
+vector<vector<int> > fromStrArrayTo2DVecFds(char* filedes[]) // build a 2Dvector of fildescriptors from an array which stores the number of publishers and all the file descriptors of their pipes
 {
         int pubs_num = atoi(filedes[0]); 
 
@@ -240,3 +240,52 @@ vector<vector<int> > fromStrArrayTo2DVecFds(char* filedes[]) // build a 3Dvector
         return filedes_2Dtable;
 }
 
+
+char** matchingTableFrom2DVecToStrArray(vector<vector<int> >  matching_table) // convert a 3Dvector of file descriptors into an array of string where each string is a file descriptor, first two element of the array are the number of subscribers and the number of publishers 
+{
+        char** array; 
+
+        int subs_num = matching_table.size(); // number of rows of the table corresponds to the number of subscribers
+        int pubs_num = matching_table[0].size(); // number of colums corresponds to the number of publishers
+        int array_length = 2 + subs_num * pubs_num;
+        array = new char*[array_length]; // allocate memory dynamically to store all the file descriptors + two element for the number of subscribers and the number of publishers
+        for (int i = 0; i < array_length; i++)
+        {
+                array[i] = new char[NCHAR_FOR_INT];
+        }
+
+        sprintf(array[0], "%d", subs_num);
+        sprintf(array[1], "%d", pubs_num);
+
+        int q = 2;
+            for (int i = 0; i < subs_num; i++)
+            {
+                    for (int j = 0; j < pubs_num; j++)
+                    {
+                    sprintf(array[q],"%d", matching_table[i][j]); // store the reading file descriptor converting it into a string
+                    q++;
+                    }
+            }
+         
+        return array;
+}
+
+vector<vector<int> > fromStrArrayTo2DVecMatchingTable(char* matching_array[]) // build a 2Dvector of fildescriptors from an array which stores the number of publishers and all the file descriptors of their pipes
+{
+        int subs_num = atoi(matching_array[0]); 
+        int pubs_num = atoi(matching_array[1]);
+
+        vector<int> row(pubs_num,0);
+        vector<vector<int> > matching_table(subs_num, row);
+        int q = 2;
+        for (int i = 0; i < subs_num; i++)
+        {
+                for (int j = 0; j < pubs_num; j++)
+                {
+                        matching_table[i][j] = atoi(matching_array[q]); 
+                        q++;
+                }
+        }
+
+        return matching_table;
+}
