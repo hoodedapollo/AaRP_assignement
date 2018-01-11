@@ -16,6 +16,7 @@ using namespace std;
 
 class SimpleSubscriber {
         private:
+            int sub_id;
             int sub_period;
             int* data_fd;
             int* notify_fd;
@@ -23,15 +24,14 @@ class SimpleSubscriber {
 
         public:
 
-            SimpleSubscriber(int period, int notify_filedes[2], int data_fildes[2], int subscriptions_notify_msg);
-            SimpleSubscriber(int period, char notify_filedes[2], char data_filedes[2], int subscriptions_notify_msg);
-//            ~Subscriber();
-            char* notify_and_read(); // notify the mediator through all the pipes and read new data if available
+            SimpleSubscriber(int subscriber_id, int period, int notify_filedes[2], int data_fildes[2], int subscriptions_notify_msg);
+            void notify_and_read(); // notify the mediator through all the pipes and read new data if available
 
 };
 
-SimpleSubscriber::SimpleSubscriber(int period, int notify_filedes[2], int data_filedes[2], int subscriptions_notify_msg) // subcriptions_notify_msg: 1 --> first publisher, 2 --> second_publisher, 3 --> both (see SimpleMediator.h)
+SimpleSubscriber::SimpleSubscriber(int subscriber_id, int period, int notify_filedes[2], int data_filedes[2], int subscriptions_notify_msg) // subcriptions_notify_msg: 1 --> first publisher, 2 --> second_publisher, 3 --> both (see SimpleMediator.h)
 {   
+        sub_id = subscriber_id; 
         sub_period = period; // set the period with which the subscriber will send a notify to the mediator in order to get newest data 
 
         notify_fd = notify_filedes; 
@@ -47,32 +47,7 @@ SimpleSubscriber::SimpleSubscriber(int period, int notify_filedes[2], int data_f
         }
 }
 
-SimpleSubscriber::SimpleSubscriber(int period, char notify_filedes[2], char data_filedes[2], int subscriptions_notify_msg) // subcriptions_notify_msg: 1 --> first publisher, 2 --> second_publisher, 3 --> both (see SimpleMediator.h)
-{   
-        sub_period = period; // set the period with which the subscriber will send a notify to the mediator in order to get newest data 
-        
-        for (int i = 0; i < 2; i++)
-        {
-                notify_fd[i] = atoi(&notify_filedes[i]);
-                data_fd[i] = atoi(&data_filedes[i]);
-        }
-
-        close(data_fd[1]);
-        close(notify_fd[0]);
-        
-        sub_notify_msg = subscriptions_notify_msg;
-        if (sub_notify_msg != SUB_TO_1 && sub_notify_msg != SUB_TO_2 && sub_notify_msg != SUB_TO_BOTH)
-        {
-              cout << "\n\n ERROR: wrong subscriptions notify message number, choose among 1 or 2 or 3i\n\n";
-        }
-}
-
-// Subscriber::~Subscriber()
-// {
-//         delete char_read;
-// }
-
-char* SimpleSubscriber::notify_and_read() // once per period notify the mediator through a message (int msg) in all outgoing pipes and the look if the mediator has sent new data in the icoming pipes
+void SimpleSubscriber::notify_and_read() // once per period notify the mediator through a message (int msg) in all outgoing pipes and the look if the mediator has sent new data in the icoming pipes
 {
 
         char actual_char;
@@ -104,8 +79,8 @@ char* SimpleSubscriber::notify_and_read() // once per period notify the mediator
                                         read(data_fd[0], &actual_char, sizeof(char)); // read a char from the pipe
                                         char_read[0] = actual_char;  // store the char in the corresponding element of the aray which will be returned
                                 }
+                                cout << "       SUB" << sub_id << " " << char_read << endl;
                                
                         }
-                        return char_read;
         } 
 }
