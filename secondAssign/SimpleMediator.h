@@ -18,9 +18,9 @@ using namespace std;
 class SimpleMediator 
 {
         private:
-                int** pubs_filedes; // array of file descriptors of the same pipe: pubs_fildes[i][0] is the reading file descriptor of the i-th publisher pipe, while pubs_fildes[i][1] is the writing one 
-                int** subs_notify_filedes; // same as pubs_fildes but for subscribers' notify pipes
-                int** subs_data_filedes; // same as pubs_fildes but for subscribers' data pipes
+                int pubs_filedes[PUB_NUM][2]; // array of file descriptors of the same pipe: pubs_fildes[i][0] is the reading file descriptor of the i-th publisher pipe, while pubs_fildes[i][1] is the writing one 
+                int subs_notify_filedes[SUB_NUM][2]; // same as pubs_fildes but for subscribers' notify pipes
+                int subs_data_filedes[SUB_NUM][2]; // same as pubs_fildes but for subscribers' data pipes
                 Queue buffer[PUB_NUM];
         public:
                 SimpleMediator(int publisher_fd[PUB_NUM][2], int subscriber_notify_fd[SUB_NUM][2], int subscriber_data_fd[SUB_NUM][2]);
@@ -30,26 +30,28 @@ class SimpleMediator
 
 SimpleMediator::SimpleMediator(int publisher_fd[PUB_NUM][2], int subscriber_notify_fd[SUB_NUM][2], int subscriber_data_fd[SUB_NUM][2])
 {
+
 //******************** set fd private variables and close file descriptors ********************************************
+        for (int i = 0; i < PUB_NUM; i++)
+        {
+                pubs_filedes[i][0] = publisher_fd[i][0];  
+                pubs_filedes[i][1] = publisher_fd[i][1];  
+                close(pubs_filedes[i][1]); // close writing file descriptor of i-th publisher pipe
+        }
 
-      pubs_filedes = (int**) publisher_fd;
-      for (int i = 0; i < PUB_NUM; i++)
-      {
-              close(pubs_filedes[i][1]); // close writing file descriptor of i-th publisher pipe
-      }
-      
-      subs_notify_filedes = (int**) subscriber_notify_fd;
-      subs_data_filedes = (int**) subscriber_data_fd;
-      for (int i = 0; i < SUB_NUM; i++)
-      {
-              close(subs_notify_filedes[i][1]); // close writing file descriptor pf the i-th subscriber pipe
-              close(subs_data_filedes[i][0]); // close the reading file descriptor of the i-th subscriber pipe
-      }
+        for (int i = 0; i < SUB_NUM; i++)
+        {
+                subs_notify_filedes[i][0] = subscriber_notify_fd[i][0];
+                subs_notify_filedes[i][1] = subscriber_notify_fd[i][1];
+                subs_data_filedes[i][0] = subscriber_data_fd[i][0];
+                subs_data_filedes[i][1] = subscriber_data_fd[i][1];
+                close(subs_notify_filedes[i][1]); // close writing file descriptor pf the i-th subscriber pipe
+                close(subs_data_filedes[i][0]); // close the reading file descriptor of the i-th subscriber pipe
+        }
 
-//******** Initialize the buffers based on the available informations ******************************
-        
-      buffer[0].set_attributes(BUFFER_SIZE, 2); // publisher 1 is subscribed by 2 subscribers (0-th and 1-th)
-      buffer[1].set_attributes(BUFFER_SIZE, 2); // publisher 2 is subscribed by 2 subscribers (              
+//******** initialize the buffers based on the available informations ******************************
+        buffer[0].set_attributes(BUFFER_SIZE, 2); // publisher 1 is subscribed by 2 subscribers (0-th and 1-th)
+        buffer[1].set_attributes(BUFFER_SIZE, 2); // publisher 2 is subscribed by 2 subscribers (              
 
 }
 
@@ -74,8 +76,8 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                         FD_SET(subs_notify_filedes[i][0], &notify_read_filedes_set); // add the notify reading file descriptor of the i-th subscriber to the set
                 }
 
-                select(max_positive_in_column_2D_array(pubs_filedes, PUB_NUM, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the publishers' pipes
-                select(max_positive_in_column_2D_array(subs_notify_filedes, SUB_NUM, 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the subscriber's notify pipe
+                select(max_positive_in_column_2D_array((int**) pubs_filedes, PUB_NUM, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the publishers' pipes
+                select(max_positive_in_column_2D_array((int**) subs_notify_filedes, SUB_NUM, 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the subscriber's notify pipe
 
                 for (int i = 0; i < SUB_NUM; i++) // for all pipes
                 {
