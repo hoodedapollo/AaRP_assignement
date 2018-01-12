@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "CircularBuffer.h"
-#include "auxiliary_functions.h"
 
 using namespace std;
 
@@ -14,7 +13,7 @@ using namespace std;
 #define SUB_TO_1 1
 #define SUB_TO_2 2
 #define SUB_TO_BOTH 3
-
+#define MED_SPACE 10
 class SimpleMediator 
 {
         private:
@@ -31,7 +30,7 @@ class SimpleMediator
 SimpleMediator::SimpleMediator(int publisher_fd[PUB_NUM][2], int subscriber_notify_fd[SUB_NUM][2], int subscriber_data_fd[SUB_NUM][2])
 {
 
-//******************** set fd private variables and close file descriptors ********************************************
+        //******************** set fd private variables and close file descriptors ********************************************
         for (int i = 0; i < PUB_NUM; i++)
         {
                 pubs_filedes[i][0] = publisher_fd[i][0];  
@@ -49,7 +48,7 @@ SimpleMediator::SimpleMediator(int publisher_fd[PUB_NUM][2], int subscriber_noti
                 close(subs_data_filedes[i][0]); // close the reading file descriptor of the i-th subscriber pipe
         }
 
-//******** initialize the buffers based on the available informations ******************************
+        //******** initialize the buffers based on the available informations ******************************
         buffer[0].set_attributes(BUFFER_SIZE, 2); // publisher 1 is subscribed by 2 subscribers (0-th and 1-th)
         buffer[1].set_attributes(BUFFER_SIZE, 2); // publisher 2 is subscribed by 2 subscribers (              
 
@@ -60,10 +59,34 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
         char new_data;
         char buffer_data;
         int notify_msg;
+        int max_pub_read_fd = 0;
+        int max_sub_notify_read_fd = 0;
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 0;
 
         fd_set pubs_read_fildes_set, notify_read_filedes_set; // declare set of file descriptors
         FD_ZERO(&pubs_read_fildes_set); // initialize the set of reading from publishers'pipe file descriptors
         FD_ZERO(&notify_read_filedes_set); // initialize the set of reading from subscribers' notify pipes 
+
+        for (int i = 0; i < PUB_NUM; i++)
+        {
+                if (pubs_filedes[i][0] > max_pub_read_fd)
+                {
+                        max_pub_read_fd = pubs_filedes[i][0];
+                }
+        }
+        cout << "MED max publisher reading fd --> " << max_pub_read_fd << endl;
+
+        for (int i = 0; i < SUB_NUM; i++)
+        {
+                if (subs_notify_filedes[i][0] > max_sub_notify_read_fd)
+                {
+                        max_sub_notify_read_fd = subs_notify_filedes[i][0];
+                }
+        }
+        cout << "MED max subscriber notify read fd --> " << max_sub_notify_read_fd << endl;
+
         while(1) 
         {
                 for (int i = 0; i < PUB_NUM; i++) // assign the reading file descriptor of publisher pipes to the reading file descriptors set
@@ -76,15 +99,37 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                         FD_SET(subs_notify_filedes[i][0], &notify_read_filedes_set); // add the notify reading file descriptor of the i-th subscriber to the set
                 }
 
-                select(max_positive_in_column_2D_array((int**) pubs_filedes, PUB_NUM, 0) + 1, &pubs_read_fildes_set, NULL, NULL, NULL); // check for new data in the publishers' pipes
-                select(max_positive_in_column_2D_array((int**) subs_notify_filedes, SUB_NUM, 0) + 1, &notify_read_filedes_set, NULL, NULL, NULL); // check if there's new data in the subscriber's notify pipe
+                int pub_sel_ret = select(max_pub_read_fd + 1, &pubs_read_fildes_set, NULL, NULL, &timeout); // check for new data in the publishers' pipes
+                if (pub_sel_ret < 0)
+                {
+                        perror("MED select on pubs fd");
+                }
+                else if (pub_sel_ret > 0)
+                {
+                        cout << "MED from pub select return value --> " << pub_sel_ret << endl;
+                }
 
-                for (int i = 0; i < SUB_NUM; i++) // for all pipes
+                int sub_sel_ret = select(max_sub_notify_read_fd + 1, &notify_read_filedes_set, NULL, NULL, &timeout); // check if there's new data in the subscriber's notify pipe
+                if (sub_sel_ret < 0)
+                {
+                        perror("MED select on sub notify fd");
+                }
+                else if (sub_sel_ret > 0)
+                {
+                        cout << "MED from sub notify select return value --> " << sub_sel_ret << endl;
+                }
+
+                for (int i = 0; i < PUB_NUM; i++)  
                 {
                         if ( FD_ISSET(pubs_filedes[i][0], &pubs_read_fildes_set) ) // if there is new data in the i-th publisher pipe 
                         {   
-                                read(pubs_filedes[i][0],&new_data,sizeof(new_data)); // read a char from the i-th publisher pipe
-                                buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
+                                ssize_t from_pub_read_ret = read(pubs_filedes[i][0],&new_data,(size_t) sizeof(new_data)); // read a char from the i-th publisher pipe
+                                if (from_pub_read_ret < 0)
+                                {
+                                        perror("MED from pub read");
+                                }
+                                cout << string(MED_SPACE, ' ') <<  "MED read from PUB"<<i+1<<" -->  " << new_data << endl;
+                              //  buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
                         }
                 }
 
@@ -92,24 +137,28 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                 {
                         if (FD_ISSET(subs_notify_filedes[i][0], &notify_read_filedes_set) ) // if a request for new data was sent through the notify pipe of the i-th subscriber 
                         {
-                                read(subs_notify_filedes[i][0], &notify_msg, sizeof(int)); // read the int notify_msg which is sent by the subscriber and specifies which publishers the subscriber i-th is subscribed to 
-                                for (int j = 0; j < PUB_NUM; j++) // for each buffer (published topic)
+                                int from_sub_read_ret = read(subs_notify_filedes[i][0], &notify_msg, sizeof(int)); // read the int notify_msg which is sent by the subscriber and specifies which publishers the subscriber i-th is subscribed to 
+                                perror("MED from sub notify pipe read");
+                                cout << "notify message --> " << notify_msg << endl;
+
+                                if (notify_msg == SUB_TO_1 || notify_msg == SUB_TO_BOTH) // if the subscriber i-th is subscribed to topic published by the first publisher (publisher id: 0)
                                 {
-                                        if (notify_msg == SUB_TO_1 || notify_msg == SUB_TO_BOTH) // if the subscriber i-th is subscribed to topic published by the first publisher (publisher id: 0)
-                                        {
-                                                buffer_data = buffer[0].deQueue(i); // get data from the first circular buffer (first publisher, id: 0) to be sent to the i-th subscriber 
-                                                write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
-                                        }
-                                        if (notify_msg == SUB_TO_2 || notify_msg == SUB_TO_BOTH)
-                                        {
-                                                buffer_data = buffer[1].deQueue(i); // get data from the second circular buffer(second publisher, id:1) to be sent to the i-th subscriber 
-                                                write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
-                                        }
+                                        buffer_data = buffer[0].deQueue(i); // get data from the first circular buffer (first publisher, id: 0) to be sent to the i-th subscriber 
+                                        int from_buf1_write_ret =  write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
+                                        perror("MED from buffer1 write");
+                                        cout << "MED write from buffer1 to SUB" <<i+1<< " --> " << buffer_data << endl;
+
+                                }
+                                if (notify_msg == SUB_TO_2 || notify_msg == SUB_TO_BOTH)
+                                {
+                                        buffer_data = buffer[1].deQueue(i); // get data from the second circular buffer(second publisher, id:1) to be sent to the i-th subscriber 
+                                        int from_buf2_write_ret = write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
+                                        perror("MED from buffer2 write");
+                                        cout << "MED write from buffer2 to SUB" <<i+1<< " --> " << buffer_data << endl;
                                 }
                         }
                 }
         }
 }
-
 
 

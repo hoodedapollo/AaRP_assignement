@@ -12,7 +12,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
         cout << "MED after execve" << endl;
-        int pub_data_fd[PUB_NUM][2];
+        int pub_fd[PUB_NUM][2];
         int sub_data_fd[SUB_NUM][2];
         int sub_notify_fd[SUB_NUM][2];
 
@@ -21,13 +21,15 @@ int main(int argc, char* argv[])
         int k = 0;
         while(k < PUB_NUM )
         {
-                pub_data_fd[k][0] = atoi(argv[q]);
+                pub_fd[k][0] = atoi(argv[q]);
                 q++;
-                pub_data_fd[k][1] = atoi(argv[q]);
+                pub_fd[k][1] = atoi(argv[q]);
                 q++;
                 k++;
         }
-        while( k < (PUB_NUM + SUB_NUM) )
+
+        k = 0;
+        while( k < SUB_NUM)
         {
                 sub_notify_fd[k][0] = atoi(argv[q]);
                 q++;
@@ -39,8 +41,14 @@ int main(int argc, char* argv[])
                 q++;
                 k++;
         }
+        
+        for (int i = 0; i < PUB_NUM; i++)
+        {
+                cout << "MED pud_fd["<<i<<"][0] = " << pub_fd[i][0] << endl;
+                cout << "MED pub_fd["<<i<<"][1] = " << pub_fd[i][1] << endl;
+        }
 
-        SimpleMediator med(pub_data_fd, sub_notify_fd, sub_data_fd);
+        SimpleMediator med(pub_fd, sub_notify_fd, sub_data_fd);
         med.fromPubs_checkNotify_BufToSubs();
 
         return 0;

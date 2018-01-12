@@ -54,41 +54,52 @@ int main(int argc, char* argv[])
                 cout << char_sub_data_fd[i][1] << endl;
         }
 
-        // pid_t mediator_fork_pid = fork();  // create the mediator child process
-        // if (mediator_fork_pid == 0) // mediator child process
-        // {
-        //         argv[0] = (char*) "mediator_child";
-        //
-        //         /[>** associate to argv all file descriptors of all pub and sub child *****
-        //         int q = 1;
-        //         int k = 0;
-        //         while (k < PUBS_NUM)
-        //         {
-        //                 argv[q] = char_pub_fd[k][0];
-        //                 q++;
-        //                 argv[q] = char_pub_fd[k][1];
-        //                 q++;
-        //                 k++;
-        //         }
-        //
-        //         k = 0;
-        //         while ( k < SUBS_NUM)
-        //         {
-        //                 argv[q] = char_sub_notify_fd[k][0];
-        //                 q++;
-        //                 argv[q] = char_sub_notify_fd[k][1];
-        //                 q++;
-        //                 argv[q] = char_sub_data_fd[k][0];
-        //                 q++;
-        //                 argv[q] = char_sub_data_fd[k][1];
-        //                 q++;
-        //                 k++;
-        //         }
-        //
-        //         cout << "MED before execve" << endl;
-        //         execve("mediator_child", argv, NULL);
-        // }
-        //else // father process
+        pid_t mediator_fork_pid = fork();  // create the mediator child process
+        if (mediator_fork_pid == 0) // mediator child process
+        {
+                argv[0] = (char*) "mediator_child";
+
+//*** associate to argv all file descriptors of all pub and sub child *****
+                int q = 1;
+                int k = 0;
+                while (k < PUBS_NUM)
+                {
+                        argv[q] = char_pub_fd[k][0];
+                        q++;
+                        argv[q] = char_pub_fd[k][1];
+                        q++;
+                        k++;
+                }
+
+                k = 0;
+                while ( k < SUBS_NUM)
+                {
+                        argv[q] = char_sub_notify_fd[k][0];
+                        q++;
+                        argv[q] = char_sub_notify_fd[k][1];
+                        q++;
+                        argv[q] = char_sub_data_fd[k][0];
+                        q++;
+                        argv[q] = char_sub_data_fd[k][1];
+                        q++;
+                        k++;
+                }
+
+                argv[q] = NULL; 
+
+                cout << "MED sub fd" << endl;    
+                for (int i = 0; i < SUBS_NUM; i++)
+                {
+                    cout << "MED char_sub_notify_fd["<<i<<"][0] = " << char_sub_notify_fd[i][0] << endl;
+                    cout << "MED char_sub_notify_fd["<<i<<"][1] = " << char_sub_notify_fd[i][1] << endl;
+                    cout << "MED char_sub_data_fd["<<i<<"][0] = " << char_sub_data_fd[i][0] << endl;
+                    cout << "MED char_sub_data_fd["<<i<<"][1] = " << char_sub_data_fd[i][1] << endl;
+                }
+
+                cout << "MED before execve" << endl;
+                execve("mediator_child", argv, NULL);
+        }
+        else // father process
         {
 
                 //*** create nsubs + npubs child processesi *****
@@ -135,57 +146,45 @@ int main(int argc, char* argv[])
                                 execve(argv[0], argv, NULL);
                         }
                 }
-                for (int i = PUBS_NUM; i < (PUBS_NUM + SUBS_NUM); i++)
-                {       
-                        sub_count = i - PUBS_NUM;
-
-                        if (fork_pid[i] == 0)
-                        {
-                                //********** exec sub child processes ********************************
-
-                                argv[1] =  char_sub_notify_fd[sub_count][0];
-                                argv[2] =  char_sub_notify_fd[sub_count][1];
-                                argv[3] =  char_sub_data_fd[sub_count][0];
-                                argv[4] =  char_sub_data_fd[sub_count][1];
-                                argv[5] = NULL;
-
-                                cout << "SUB" << sub_count +1 << endl;
-
-                                // for (int j = 1; j < 5; j++)
-                                // {
-                                //         cout << "argv" << j << " --> " << argv[j] << endl;
-                                // }
-
-                                cout << "argv[1] =  char_sub_notify_fd["<<sub_count<<"][0] = " << char_sub_notify_fd[sub_count][0] << endl;
-                                cout << "argv[2] =  char_sub_notify_fd["<<sub_count<<"][1] = " << char_sub_notify_fd[sub_count][1] << endl;
-                                cout << "argv[3] =  char_sub_data_fd["<<sub_count<<"][0] = " <<  char_sub_data_fd[sub_count][0] << endl;
-                                cout << "argv[4] =  char_sub_data_fd["<<sub_count<<"][1] = " <<  char_sub_data_fd[sub_count][1] << endl;
-
-                                // argv[1] = (char*) "1";
-                                // argv[2] =  (char*) "12";
-                                // argv[3] =  (char*) "13";
-                                // argv[4] =  (char*) "14";
-                                // argv[5] = NULL;
-
-                                if (i == 2)
-                                {
-                                        argv[0] = (char*) "sub_child1";
-                                        cout << "SUB" << i-1 << " before execve" << endl;
-                                }
-                                if (i == 3)
-                                {
-                                        argv[0] = (char*) "sub_child2";
-                                        cout << "SUB" << i-1 << " before execve" << endl;
-                                }
-                                if (i == 4)
-                                {
-                                        argv[0] = (char*) "sub_child3";
-                                        cout << "SUB" << i-1 << " before execve" << endl;
-                                }
-
-                                execve(argv[0], argv, NULL);
-                        }
-                }
+                // for (int i = PUBS_NUM; i < (PUBS_NUM + SUBS_NUM); i++)
+                // {
+                //         sub_count = i - PUBS_NUM;
+                //
+                //         if (fork_pid[i] == 0)
+                //         {
+                //                 /[>********* exec sub child processes ********************************
+                //
+                //                 argv[1] =  char_sub_notify_fd[sub_count][0];
+                //                 argv[2] =  char_sub_notify_fd[sub_count][1];
+                //                 argv[3] =  char_sub_data_fd[sub_count][0];
+                //                 argv[4] =  char_sub_data_fd[sub_count][1];
+                //                 argv[5] = NULL;
+                //
+                //                 cout << "SUB" << sub_count +1 << endl;
+                //                 cout << "argv[1] =  char_sub_notify_fd["<<sub_count<<"][0] = " << char_sub_notify_fd[sub_count][0] << endl;
+                //                 cout << "argv[2] =  char_sub_notify_fd["<<sub_count<<"][1] = " << char_sub_notify_fd[sub_count][1] << endl;
+                //                 cout << "argv[3] =  char_sub_data_fd["<<sub_count<<"][0] = " <<  char_sub_data_fd[sub_count][0] << endl;
+                //                 cout << "argv[4] =  char_sub_data_fd["<<sub_count<<"][1] = " <<  char_sub_data_fd[sub_count][1] << endl;
+                //
+                //                 if (i == 2)
+                //                 {
+                //                         argv[0] = (char*) "sub_child1";
+                //                         cout << "SUB" << i-1 << " before execve" << endl;
+                //                 }
+                //                 if (i == 3)
+                //                 {
+                //                         argv[0] = (char*) "sub_child2";
+                //                         cout << "SUB" << i-1 << " before execve" << endl;
+                //                 }
+                //                 if (i == 4)
+                //                 {
+                //                         argv[0] = (char*) "sub_child3";
+                //                         cout << "SUB" << i-1 << " before execve" << endl;
+                //                 }
+                //
+                //                 execve(argv[0], argv, NULL);
+                //         }
+                // }
                 for (int i = 0; i < (PUBS_NUM + SUBS_NUM + 1); i++) // wait for all the child processes ( + 1 stands for the mediator)
                 {
                         wait(NULL);
