@@ -14,6 +14,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+        cout << "SUB3 after execve" << endl;
         int notify_fd[2];
         int data_fd[2];
 
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
         data_fd[0] = atoi(argv[3]);        
         data_fd[1] = atoi(argv[4]);        
 
-        SimpleSubscriber sub(333, SUB_PERIOD, notify_fd, data_fd, NOTIFY_MSG);
+        SimpleSubscriber sub(3, SUB_PERIOD, notify_fd, data_fd, NOTIFY_MSG);
         sub.notify_and_read();
         
 }

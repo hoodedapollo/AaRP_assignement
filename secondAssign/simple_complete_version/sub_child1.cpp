@@ -4,8 +4,8 @@
 #include <iostream>
 #include "../SimpleSubscriber.h"
 #include <sys/types.h>
-#include <string>
-#include <vector>
+
+
 
 using namespace std;
 
@@ -14,6 +14,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+        cout << "SUB1 after execve" << endl;
         int notify_fd[2];
         int data_fd[2];
 

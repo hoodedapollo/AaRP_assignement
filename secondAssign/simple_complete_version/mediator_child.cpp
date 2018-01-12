@@ -11,6 +11,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+        cout << "MED after execve" << endl;
         int pub_data_fd[PUB_NUM][2];
         int sub_data_fd[SUB_NUM][2];
         int sub_notify_fd[SUB_NUM][2];
