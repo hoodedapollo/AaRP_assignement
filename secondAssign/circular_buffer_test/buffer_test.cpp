@@ -16,43 +16,43 @@ int main ()
 
         buffer.display();
 
-        buffer.enQueue(10);
-        buffer.enQueue(20);
-        buffer.enQueue(30);
-        buffer.enQueue(40);
+        buffer.enQueue('a');
+        buffer.enQueue('b');
+        buffer.enQueue('c');
+        buffer.enQueue('d');
         buffer.display();
 
-        int sub1_first = buffer.deQueue(1);
+        char sub1_first = buffer.deQueue(1);
         cout << "sub1_first " << sub1_first << endl;
 
         buffer.display();
 
-        int sub0_first = buffer.deQueue(0);
+        char sub0_first = buffer.deQueue(0);
         cout << "sub0_first " << sub0_first << endl;
             
         buffer.display();
 
-        int sub1_second = buffer.deQueue(1);
+        char sub1_second = buffer.deQueue(1);
         cout << "sub1_second " << sub1_second << endl;
 
         buffer.display();
 
-        int sub0_second = buffer.deQueue(0);
+        char sub0_second = buffer.deQueue(0);
         cout << "sub0_second " << sub0_second << endl;
 
         buffer.display();
 
-        int sub0_third = buffer.deQueue(0);
+        char sub0_third = buffer.deQueue(0);
         cout << "sub0_third " << sub0_third << endl;
 
         buffer.display();
 
-        int sub1_third = buffer.deQueue(1);
+        char sub1_third = buffer.deQueue(1);
         cout << "sub1_third " << sub1_third << endl; 
 
         buffer.display();
 
-        int sub0_fourth = buffer.deQueue(0);
+        char sub0_fourth = buffer.deQueue(0);
         cout << "sub0_fourth " << sub0_fourth << endl;
 
 } 
