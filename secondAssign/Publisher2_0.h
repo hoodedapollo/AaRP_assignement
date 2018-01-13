@@ -45,8 +45,12 @@ void Publisher::write_in_pipe (char Aa) // generate a random char, capitol lette
                 {
                         randomletter = 'A' + (random() % 26);
                 }
-                write(pipe_filedes_writing, &randomletter, sizeof(randomletter));
-                cout << "PUB" << pub_id << randomletter << endl;
+                int write_ret = write(pipe_filedes_writing, &randomletter, sizeof(randomletter));
+                if (write_ret < 0)
+                {
+                        perror("pub write");
+                }
+                cout << "PUB" << pub_id << " --> " << randomletter << endl;
         }
 }
 
