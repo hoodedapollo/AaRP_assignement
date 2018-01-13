@@ -7,9 +7,11 @@ using namespace std;
 
 class Queue {
         private:
-                int rear, buffer_size, subs_num, empty_counter;
+                int rear, buffer_size, subs_num;
                 int *front;
+                int *empty_flag;
                 char *items;
+
 
         public:
                 Queue();
@@ -18,6 +20,7 @@ class Queue {
                 void set_attributes(int buff_size, int num_of_subs);
                 bool isFull();
                 bool isEmpty();
+                bool isEmpty(int sub_id);
                 void enQueue(int element);
                 char deQueue(int sub_id);
                 void display();
@@ -25,34 +28,48 @@ class Queue {
 
 Queue::Queue()
 {
-        empty_counter = 0;
 }
 
 Queue::Queue(int buff_size, int num_of_subs)
 {
-        empty_counter = 0;
-        subs_num = num_of_subs;    
-        buffer_size = buff_size;
         items = new char[buff_size];
         front = new int[num_of_subs];
-        rear = -1;
+        empty_flag = new int[num_of_subs];
+        
+        buffer_size = buff_size;
+        subs_num = num_of_subs;    
+
+        for (int i = 0; i < num_of_subs; i++)
+        {
+                empty_flag[i] = 0;
+        }
+
         for (int i = 0; i < subs_num; i++)
         {
                 front[i] = -1;
         }
+        rear = -1;
 }
 
 void Queue::set_attributes(int buff_size, int num_of_subs)
 {
-        subs_num = num_of_subs;    
-        buffer_size = buff_size;
-        items = new char[buffer_size];
+        items = new char[buff_size];
         front = new int[num_of_subs];
-        rear = -1;
+        empty_flag = new int[num_of_subs];
+        
+        buffer_size = buff_size;
+        subs_num = num_of_subs;    
+
+        for (int i = 0; i < num_of_subs; i++)
+        {
+                empty_flag[i] = 0;
+        }
+
         for (int i = 0; i < subs_num; i++)
         {
                 front[i] = -1;
         }
+        rear = -1;
 }
 
 Queue::~Queue()
@@ -89,6 +106,16 @@ bool Queue::isEmpty()
         return true;
 }
 
+bool Queue::isEmpty(int sub_id)
+{
+        if(empty_flag[sub_id] == 1)
+
+        {
+                return true;
+        }
+        return false;
+}
+
 void Queue::enQueue(int element) // add element to the buffer
 {
         if(isFull())
@@ -116,34 +143,46 @@ void Queue::enQueue(int element) // add element to the buffer
 char Queue::deQueue(int sub_id) // returns the next element in the queue and updates the front pointer relative to the subs_id subscriber    
 {
         int element;
-        if (isEmpty())
+        int empty_counter;
+
+        empty_counter = 0;
+
+        if (isEmpty()) // if is empty for all subscribers
         {
-                cout << "Queue is empty" << endl;
-                element = -1; 
+                cout << "ALL SUB: Queue is empty for all subscribers" << endl;
+        }
+        else if (isEmpty(sub_id)) // if is empty only for one subscriber
+        {
+                cout << "SUB"<<sub_id<<" Queue is empty" << endl;
         }
         else
         {
                 element = items[front[sub_id]]; // store the element pointed by the front pointer of the subs_id subscriber in element
-                if (front[sub_id] == rear)
+                if (front[sub_id] == rear) // if after this deQueue the queue becomes empty for the sub_id subscriber
                 {
-                        empty_counter++;
+                        empty_flag[sub_id] = 1; // set the flag relative to the sub_id subscriber
+                        front[sub_id] = -1;
                 }
                 else
                 {
                         front[sub_id] = (front[sub_id] + 1) % buffer_size; // update the front pointer relative to the sub_id subscriber
                 }
 
-                if (empty_counter == subs_num) // if all the front pointer of the subscribers are equal to the rear pointer empty the queue
+                for (int i = 0; i < subs_num; i++)
                 {
-                        for (int i = 0; i < subs_num; i++)
+
+                        if (empty_flag[i] == 1) // if all the front pointer of the subscribers are equal to the rear pointer empty the queue
                         {
-                                front[i] = -1;
+                                empty_counter++;                       
                         }
-                        rear = -1;
-                        empty_counter = 0;
+
                 }
+                if (empty_counter == subs_num)
+                {
+                        rear = -1;
+                }
+                return(element);
         }
-        return(element);
 } 
 
 void Queue::display()
@@ -158,18 +197,24 @@ void Queue::display()
                 for(i = 0; i < subs_num; i++)
                 {
                         cout << endl << "SUB" << i << endl; 
+                        
+                        if (isEmpty(i))
                         {
-                                cout << "Front --> " << front[i] << endl;
-                                cout << "Items:" << endl;
+                            cout << "   Empty" << endl;
+                        }       
+                        else 
+                        {
+                                cout << "   Front --> " << front[i] << endl;
+                                cout << "   Items:" << endl;
                                 for (j = front[i]; j != rear; j = (j+1) % buffer_size)
                                 {
-                                        cout << string(3, ' ') << items[j] << endl;
+                                        cout << string(6, ' ') << items[j] << endl;
                                 }
-                                cout << string(3, ' ') << items[j] << endl;
+                                cout << string(6, ' ') << items[j] << endl;
                         }
 
                 }
-                cout << endl << "Rear --> " << rear << endl << endl;
+                cout << endl << "ALL SUB:" << endl << "   Rear --> " << rear << endl << endl;
         }
 }
 
