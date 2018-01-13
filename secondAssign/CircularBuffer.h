@@ -13,9 +13,9 @@ class Queue {
 
         public:
                 Queue();
-                Queue(int buffer_size, int num_of_subs);
+                Queue(int buff_size, int num_of_subs);
                 ~Queue();
-                void set_attributes(int buffer_size, int num_of_subs);
+                void set_attributes(int buff_size, int num_of_subs);
                 bool isFull();
                 bool isEmpty();
                 void enQueue(int element);
@@ -42,9 +42,10 @@ Queue::Queue(int buff_size, int num_of_subs)
         }
 }
 
-void Queue::set_attributes(int buffer_size, int num_of_subs)
+void Queue::set_attributes(int buff_size, int num_of_subs)
 {
         subs_num = num_of_subs;    
+        buffer_size = buff_size;
         items = new char[buffer_size];
         front = new int[num_of_subs];
         rear = -1;
