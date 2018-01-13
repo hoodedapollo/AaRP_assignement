@@ -104,10 +104,10 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                 {
                         perror("MED select on pubs fd");
                 }
-                else if (pub_sel_ret > 0)
-                {
-                        cout << "MED from pub select return value --> " << pub_sel_ret << endl;
-                }
+                // else if (pub_sel_ret > 0)
+                // {
+                //         cout << string(MED_SPACE, ' ') << "MED from pub select return value --> " << pub_sel_ret << endl;
+                // }
 
                 int sub_sel_ret = select(max_sub_notify_read_fd + 1, &notify_read_filedes_set, NULL, NULL, &timeout); // check if there's new data in the subscriber's notify pipe
                 if (sub_sel_ret < 0)
@@ -129,7 +129,7 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                                         perror("MED from pub read");
                                 }
                                 cout << string(MED_SPACE, ' ') <<  "MED read from PUB"<<i+1<<" -->  " << new_data << endl;
-                              //  buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
+                                buffer[i].enQueue(new_data); // add the char read from the i-th publisher pipe to the corresponding i-th buffer
                         }
                 }
 
