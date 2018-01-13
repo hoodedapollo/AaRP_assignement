@@ -56,6 +56,10 @@ int main ()
         cout << "sub0_fourth " << sub0_fourth << endl;
 
         buffer.display();
+        
+        buffer.enQueue('E');
+
+        buffer.display();
 
         char sub1_third = buffer.deQueue(1);
         cout << "sub1_third " << sub1_third << endl; 
