@@ -13,7 +13,7 @@ using namespace std;
 #define SUB_TO_1 1
 #define SUB_TO_2 2
 #define SUB_TO_BOTH 3
-#define MED_SPACE 10
+#define MED_SPACE 15
 class SimpleMediator 
 {
         private:
@@ -49,8 +49,10 @@ SimpleMediator::SimpleMediator(int publisher_fd[PUB_NUM][2], int subscriber_noti
         }
 
         //******** initialize the buffers based on the available informations ******************************
-        buffer[0].set_attributes(BUFFER_SIZE, 2); // publisher 1 is subscribed by 2 subscribers (0-th and 1-th)
-        buffer[1].set_attributes(BUFFER_SIZE, 2); // publisher 2 is subscribed by 2 subscribers (              
+        for (int i = 0; i < PUB_NUM; i++)
+        {
+                buffer[i].set_attributes(BUFFER_SIZE, SUB_NUM); // all buffers have front indexes for all subscribers, it doesn't imply that all subscribers are going to get data from all buffers   
+        }
 
 }
 
@@ -114,10 +116,10 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                 {
                         perror("MED select on sub notify fd");
                 }
-                else if (sub_sel_ret > 0)
-                {
-                        cout << "MED from sub notify select return value --> " << sub_sel_ret << endl;
-                }
+                // else if (sub_sel_ret > 0)
+                // {
+                //         cout << string(MED_SPACE, ' ') <<  "MED from sub notify select return value --> " << sub_sel_ret << endl;
+                // }
 
                 for (int i = 0; i < PUB_NUM; i++)  
                 {
@@ -138,23 +140,46 @@ void SimpleMediator::fromPubs_checkNotify_BufToSubs() // control if any publishe
                         if (FD_ISSET(subs_notify_filedes[i][0], &notify_read_filedes_set) ) // if a request for new data was sent through the notify pipe of the i-th subscriber 
                         {
                                 int from_sub_read_ret = read(subs_notify_filedes[i][0], &notify_msg, sizeof(int)); // read the int notify_msg which is sent by the subscriber and specifies which publishers the subscriber i-th is subscribed to 
-                                perror("MED from sub notify pipe read");
-                                cout << "notify message --> " << notify_msg << endl;
+                                if (from_sub_read_ret < 0)
+                                {
+                                        perror("MED from sub notify pipe read");
+                                }
+                                cout << string(MED_SPACE, ' ') << "MED notify message read from SUB"<<i+1<< " --> " << notify_msg << endl;
 
                                 if (notify_msg == SUB_TO_1 || notify_msg == SUB_TO_BOTH) // if the subscriber i-th is subscribed to topic published by the first publisher (publisher id: 0)
                                 {
-                                        buffer_data = buffer[0].deQueue(i); // get data from the first circular buffer (first publisher, id: 0) to be sent to the i-th subscriber 
-                                        int from_buf1_write_ret =  write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
-                                        perror("MED from buffer1 write");
-                                        cout << "MED write from buffer1 to SUB" <<i+1<< " --> " << buffer_data << endl;
+                                        if(!buffer[0].isEmpty(i))
+                                                {
+                                                        buffer_data = buffer[0].deQueue(i); // get data from the first circular buffer (first publisher, id: 0) to be sent to the i-th subscriber 
+                                                        int from_buf1_write_ret =  write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
+                                                        if (from_buf1_write_ret < 0)
+                                                        {
+                                                        perror("MED from buffer1 write");
+                                                        }
+                                                        cout << string(MED_SPACE, ' ') << "MED write from buffer1 to SUB" <<i+1<< " --> " << buffer_data << endl;
+                                                }
+                                        else
+                                        {
+                                                cout << string(MED_SPACE, ' ') << "MED buffer0 is empty relative to SUB" << i+1 << endl;
+                                        } 
 
                                 }
                                 if (notify_msg == SUB_TO_2 || notify_msg == SUB_TO_BOTH)
                                 {
-                                        buffer_data = buffer[1].deQueue(i); // get data from the second circular buffer(second publisher, id:1) to be sent to the i-th subscriber 
-                                        int from_buf2_write_ret = write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
-                                        perror("MED from buffer2 write");
-                                        cout << "MED write from buffer2 to SUB" <<i+1<< " --> " << buffer_data << endl;
+                                        if(!buffer[1].isEmpty(i))
+                                                {
+                                                        buffer_data = buffer[1].deQueue(i); // get data from the second circular buffer(second publisher, id:1) to be sent to the i-th subscriber 
+                                                        int from_buf2_write_ret = write(subs_data_filedes[i][1], &buffer_data, sizeof(char)); // write the data in the i-th subscriber data pipe 
+                                                        if (from_buf2_write_ret < 0)
+                                                        {
+                                                                perror("MED from buffer2 write");
+                                                        }
+                                                        cout << string(MED_SPACE, ' ') << "MED write from buffer2 to SUB" <<i+1<< " --> " << buffer_data << endl;
+                                                }
+                                        else
+                                        {
+                                                cout << string(MED_SPACE, ' ') << "MED buffer0 is empty relative to SUB" << i+1 << endl;
+                                        } 
                                 }
                         }
                 }

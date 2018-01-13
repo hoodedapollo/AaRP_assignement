@@ -10,7 +10,7 @@
 using namespace std;
 
 #define SUB_PERIOD 15 // ms
-#define NOTIFY_MSG 1
+#define NOTIFY_MSG 2 
 
 int main(int argc, char* argv[])
 {
