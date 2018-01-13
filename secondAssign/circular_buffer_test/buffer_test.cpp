@@ -12,14 +12,19 @@ using namespace std;
 #define SUBS_NUM 2
 int main ()
 {
-        Queue buffer(BUFFER_SIZE, SUBS_NUM);
+        Queue buffer;
+        buffer.set_attributes(BUFFER_SIZE, SUBS_NUM);
 
         buffer.display();
 
-        buffer.enQueue('a');
+        buffer.enQueue('A');
         buffer.enQueue('b');
-        buffer.enQueue('c');
+        buffer.enQueue('C');
+
+        buffer.display();
+
         buffer.enQueue('d');
+
         buffer.display();
 
         char sub1_first = buffer.deQueue(1);
@@ -47,12 +52,19 @@ int main ()
 
         buffer.display();
 
+        char sub0_fourth = buffer.deQueue(0);
+        cout << "sub0_fourth " << sub0_fourth << endl;
+
+        buffer.display();
+
         char sub1_third = buffer.deQueue(1);
         cout << "sub1_third " << sub1_third << endl; 
 
         buffer.display();
 
-        char sub0_fourth = buffer.deQueue(0);
-        cout << "sub0_fourth " << sub0_fourth << endl;
+        char sub1_fourth = buffer.deQueue(1);
+        cout << "sub1_fourth " << sub1_fourth << endl; 
+
+        buffer.display();
 
 } 
