@@ -41,10 +41,10 @@ SimpleSubscriber::SimpleSubscriber(int subscriber_id, int period, int notify_fil
         close(notify_fd[0]);
         
         sub_notify_msg = subscriptions_notify_msg;
-        if (sub_notify_msg != SUB_TO_1 && sub_notify_msg != SUB_TO_2 && sub_notify_msg != SUB_TO_BOTH)
-        {
-              cout << "\n\n ERROR: wrong subscriptions notify message number, choose among 1 or 2 or 3i\n\n";
-        }
+        // if (sub_notify_msg != SUB_TO_1 && sub_notify_msg != SUB_TO_2 && sub_notify_msg != SUB_TO_BOTH)
+        // {
+        //       cout << "\n\n ERROR: wrong subscriptions notify message number, choose among 1 or 2 or 3i\n\n";
+        // }
 }
 
 void SimpleSubscriber::notify_and_read() // once per period notify the mediator through a message (int msg) in all outgoing pipes and the look if the mediator has sent new data in the icoming pipes
@@ -59,6 +59,8 @@ void SimpleSubscriber::notify_and_read() // once per period notify the mediator 
                 sleep(sub_period); // do the notify and read once per period 
                         FD_SET(data_fd[0], &readfrom_filedes); // insert the incoming pipe fd in the readfrom set of file descriptors
                         write(notify_fd[1], &sub_notify_msg, sizeof(int)); // notify the mediator the subscriber wants to get new data, sub_notify_msg content also specifies from which buffers
+                        cout << "       SUB" << sub_id << endl;
+                        perror("        notify write");
 
                 select(data_fd[0] + 1, &readfrom_filedes, NULL, NULL, NULL); // find if there's new data available in the data pipe
                 
@@ -70,16 +72,21 @@ void SimpleSubscriber::notify_and_read() // once per period notify the mediator 
                                         for (int i = 0; i < PUB_NUM; i++)
                                         {
                                                 read(data_fd[0], &actual_char, sizeof(char)); // read a char from the pipe
+                                                cout << "       SUB" << sub_id << endl;
+                                                perror("        read data");
                                                 char_read[i] = actual_char;  // store the char in the corresponding element of the aray which will be returned
+                                                cout << "       SUB" << sub_id << " " << char_read[i] << endl;
                                         }
                                 }
                                 else if (sub_notify_msg == SUB_TO_1 || sub_notify_msg == SUB_TO_2)
                                 {
                                         char_read = new char[1];
                                         read(data_fd[0], &actual_char, sizeof(char)); // read a char from the pipe
+                                        cout << "       SUB" << sub_id << endl;
+                                        perror("        read data");
                                         char_read[0] = actual_char;  // store the char in the corresponding element of the aray which will be returned
+                                        cout << "       SUB" << sub_id << " " << char_read[0] << endl;
                                 }
-                                cout << "       SUB" << sub_id << " " << char_read << endl;
                                
                         }
         } 
