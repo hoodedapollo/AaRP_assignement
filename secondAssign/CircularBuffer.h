@@ -125,7 +125,14 @@ void Queue::enQueue(int element) // add element to the buffer
                         front[i] = (front[i] + 1) % buffer_size; // update the front pointer relative to the sub_id subscriber
                 }
         }
-
+        for (int i = 0; i < subs_num; i++)
+        {
+                if (empty_flag[i] == 1)
+                {
+                        front[i] = (front[i] + 1) % buffer_size;        
+                        empty_flag[i] = 0;
+                }
+        }
 
         for (int i = 0; i < subs_num; i++) // for all subscribers
         {
@@ -161,7 +168,6 @@ char Queue::deQueue(int sub_id) // returns the next element in the queue and upd
                 if (front[sub_id] == rear) // if after this deQueue the queue becomes empty for the sub_id subscriber
                 {
                         empty_flag[sub_id] = 1; // set the flag relative to the sub_id subscriber
-                        front[sub_id] = -1;
                 }
                 else
                 {
@@ -179,6 +185,10 @@ char Queue::deQueue(int sub_id) // returns the next element in the queue and upd
                 }
                 if (empty_counter == subs_num)
                 {
+                        for (int i = 0; i < subs_num; i++)
+                        { 
+                                front[sub_id] = -1;
+                        }
                         rear = -1;
                 }
                 return(element);
